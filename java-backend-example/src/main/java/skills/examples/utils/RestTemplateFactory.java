@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package skills.examples;
+package skills.examples.utils;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
@@ -33,13 +33,9 @@ public class RestTemplateFactory {
     @Autowired
     SkillsConfig skillsConfig;
 
-    private RestTemplate restTemplate;
 
     public RestTemplate getTemplateWithAuth() {
-        if (restTemplate != null) {
-            return restTemplate;
-        }
-        restTemplate = new RestTemplate();
+        RestTemplate restTemplate = new RestTemplate();
         if (!skillsConfig.getAuthMode().equalsIgnoreCase("pki")) {
             // must configure HttpComponentsClientHttpRequestFactory as SpringTemplate does
             // not by default keeps track of session

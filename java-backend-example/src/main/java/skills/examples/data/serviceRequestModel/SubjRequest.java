@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package skills.examples.loadData;
+package skills.examples.data.serviceRequestModel;
 
-public class BadgeRequest {
+public class SubjRequest {
     private String name;
     private String description;
     private String iconClass;
 
-    public BadgeRequest() {
-
+    public SubjRequest() {
     }
 
-    public BadgeRequest(String name, String description, String iconClass) {
+    public SubjRequest(String name, String description, String iconClass) {
         this.name = name;
         this.description = description;
         this.iconClass = iconClass;
@@ -52,5 +51,14 @@ public class BadgeRequest {
 
     public void setIconClass(String iconClass) {
         this.iconClass = iconClass;
+    }
+
+    @Override
+    public String toString() {
+        return "SubjRequest{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", iconClass='" + iconClass + '\'' +
+                '}';
     }
 }

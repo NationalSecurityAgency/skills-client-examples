@@ -13,21 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package skills.examples.loadData;
+package skills.examples.data.model;
 
-public class SubjRequest {
+import java.util.List;
+
+public class Subject {
+    private String id;
     private String name;
-    private String description;
     private String iconClass;
-
-    public SubjRequest() {
-    }
-
-    public SubjRequest(String name, String description, String iconClass) {
-        this.name = name;
-        this.description = description;
-        this.iconClass = iconClass;
-    }
+    private List<Movie> movies;
 
     public String getName() {
         return name;
@@ -35,14 +29,6 @@ public class SubjRequest {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getIconClass() {
@@ -53,12 +39,19 @@ public class SubjRequest {
         this.iconClass = iconClass;
     }
 
-    @Override
-    public String toString() {
-        return "SubjRequest{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", iconClass='" + iconClass + '\'' +
-                '}';
+    public List<Movie> getMovies() {
+        return movies;
+    }
+
+    public void setMovies(List<Movie> movies) {
+        this.movies = movies;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

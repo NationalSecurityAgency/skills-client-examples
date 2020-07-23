@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package skills.examples;
+package skills.examples.data.serviceRequestModel;
 
-public class UserInfo {
+public class UserInfoRequest {
     private String firstName;
     private String lastName;
     private String password;
     private String email;
 
-    public UserInfo() {
+    public UserInfoRequest() {
         super();
     }
 
-    public UserInfo(String firstName, String lastName, String email, String password) {
+    public UserInfoRequest(String firstName, String lastName, String email, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.password = password;

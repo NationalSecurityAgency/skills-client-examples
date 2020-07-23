@@ -25,6 +25,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import skills.examples.data.SampleDatasetLoader;
+import skills.examples.utils.SecretHelper;
+import skills.examples.utils.SkillsConfig;
 
 import java.util.Arrays;
 
@@ -38,12 +41,15 @@ public class ControllerExample {
     @Autowired
     SecretHelper secretHelper;
 
+    @Autowired
+    SampleDatasetLoader sampleDatasetLoader;
+
     @CrossOrigin()
     @GetMapping("/users/{user}/token")
-    public String getUserAuthToken1(@PathVariable String user) {
-        String clientId =skillsConfig.getProjectId();
+    public String getUserAuthToken(@PathVariable String user) {
+        String clientId = sampleDatasetLoader.getProject().getId(); // projet Id
         String serviceTokenUrl = skillsConfig.getServiceUrl() + "/oauth/token";
-        String clientSecret = secretHelper.getSecret();
+        String clientSecret = secretHelper.getSecret(clientId);
 
         RestTemplate oAuthRestTemplate = new RestTemplate();
         oAuthRestTemplate.setInterceptors(Arrays.asList(new BasicAuthenticationInterceptor(clientId, clientSecret)));
@@ -57,11 +63,5 @@ public class ControllerExample {
         ResponseEntity<String> responseEntity = oAuthRestTemplate.postForEntity(serviceTokenUrl, new HttpEntity<>(body, headers), String.class);
 
         return responseEntity.getBody();
-    }
-
-    @CrossOrigin()
-    @GetMapping("/hi")
-    public String hi() {
-        return "hi";
     }
 }

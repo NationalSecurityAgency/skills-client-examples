@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package skills.examples.loadData;
+package skills.examples.data.model;
 
 import java.util.List;
 
-public class Project {
+public class Badge {
     private String id;
-    private List<Subject> subjects;
-    private List<Badge> badges;
     private String name;
+    private String description;
+    private String iconClass;
+    private List<String> skillIds;
 
     public String getId() {
         return id;
@@ -29,14 +30,6 @@ public class Project {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public List<Subject> getSubjects() {
-        return subjects;
-    }
-
-    public void setSubjects(List<Subject> subjects) {
-        this.subjects = subjects;
     }
 
     public String getName() {
@@ -47,11 +40,28 @@ public class Project {
         this.name = name;
     }
 
-    public List<Badge> getBadges() {
-        return badges;
+    public String getDescription() {
+        return description;
     }
 
-    public void setBadges(List<Badge> badges) {
-        this.badges = badges;
+    public void setDescription(String description) {
+        this.description = description;
     }
+
+    public String getIconClass() {
+        return iconClass;
+    }
+
+    public void setIconClass(String iconClass) {
+        this.iconClass = iconClass;
+    }
+
+    public List<String> getSkillIds() {
+        return skillIds;
+    }
+
+    public void setSkillIds(List<String> skillIds) {
+        this.skillIds = skillIds;
+    }
+
 }

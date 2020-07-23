@@ -13,33 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package skills.examples.loadData;
+package skills.examples.data;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import skills.examples.RestTemplateFactory;
-import skills.examples.SkillsConfig;
-import skills.examples.UserInfo;
+import skills.examples.utils.RestTemplateFactory;
+import skills.examples.utils.SkillsConfig;
+import skills.examples.data.serviceRequestModel.UserInfoRequest;
+import skills.examples.data.model.Badge;
+import skills.examples.data.model.Movie;
+import skills.examples.data.model.Project;
+import skills.examples.data.model.Subject;
+import skills.examples.data.serviceRequestModel.*;
 
 import javax.annotation.PostConstruct;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 @Component
-public class LoadDataSet {
+public class InitSkillServiceWithData {
 
     @Autowired
     private SkillsConfig skillsConfig;
@@ -47,23 +50,26 @@ public class LoadDataSet {
     @Autowired
     private RestTemplateFactory restTemplateFactory;
 
-    private static final Logger log = LoggerFactory.getLogger(LoadDataSet.class);
+    @Autowired
+    private SampleDatasetLoader sampleDatasetLoader;
+
+    private static final Logger log = LoggerFactory.getLogger(InitSkillServiceWithData.class);
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMMM d, yyyy");
-    @Value("classpath:movies.json")
-    Resource resourceFile;
+
 
     @PostConstruct
     void load() throws Exception {
-        ObjectMapper jsonMapper = new ObjectMapper();
-        Project project = jsonMapper.readValue(resourceFile.getURL(), Project.class);
-        project.setName("MoviesA");
-        project.setId(project.getName().toLowerCase());
-//        createUser(skillsConfig.getServiceUrl() + "/createAccount");
+        Project project = sampleDatasetLoader.getProject();
+        createUser(skillsConfig.getServiceUrl() + "/createAccount");
 
         String serviceUrl = skillsConfig.getServiceUrl();
         RestTemplate rest = restTemplateFactory.getTemplateWithAuth();
 
+        if (rest.getForEntity(serviceUrl + "/app/projects", String.class).getBody().contains(project.getName())){
+            log.info("Project [" + project.getName() + "] already exist!");
+            return;
+        }
         String projectId = project.getId();
         post(rest, serviceUrl + "/app/projects/" + projectId, new ProjRequest(project.getName()));
 
@@ -76,6 +82,18 @@ public class LoadDataSet {
         reportSkills(rest, project);
 
         log.info("Project [" + projectId + "] was created!");
+    }
+
+    private boolean doesUserExist() {
+        try {
+            RestTemplate rest = restTemplateFactory.getTemplateWithAuth();
+            ResponseEntity<String> res = rest.getForEntity(skillsConfig.getServiceUrl() + "/app/projects", String.class);
+            return true;
+        } catch (HttpClientErrorException.Unauthorized unauthorizedE) {
+            // swallow
+        }
+
+        return false;
     }
 
     private void addSubjects(Project project, RestTemplate rest, String projectUrl) {
@@ -183,16 +201,22 @@ public class LoadDataSet {
     }
 
     private void post(RestTemplate restTemplate, String url, Object data) {
-        log.debug("POST: " + url + " with [" + data + "]");
+        if (log.isDebugEnabled()){
+            log.debug("POST: " + url + " with [" + data + "]");
+        }
         restTemplate.postForEntity(url, data, String.class);
     }
 
     private void createUser(String url) {
-        RestTemplate restTemplate = new RestTemplate();
-        UserInfo userInfo = new UserInfo("Bill", "Gosling", skillsConfig.getUsername(), skillsConfig.getPassword());
-        HttpEntity request = new HttpEntity<>(userInfo, new HttpHeaders());
-        restTemplate.put(url, request);
-        log.info("\n-----------------\nCreated User:\n  email=[" + userInfo.getEmail() + "]\n  password=[" + userInfo.getPassword() + "]\n----------------");
+        if (!doesUserExist()) {
+            RestTemplate restTemplate = new RestTemplate();
+            UserInfoRequest userInfoRequest = new UserInfoRequest("Bill", "Gosling", skillsConfig.getUsername(), skillsConfig.getPassword());
+            HttpEntity request = new HttpEntity<>(userInfoRequest, new HttpHeaders());
+            restTemplate.put(url, request);
+            log.info("\n-----------------\nCreated User:\n  email=[" + userInfoRequest.getEmail() + "]\n  password=[" + userInfoRequest.getPassword() + "]\n----------------");
+        } else {
+            log.info("User [" + skillsConfig.getUsername() + "] already exist");
+        }
     }
 
 }

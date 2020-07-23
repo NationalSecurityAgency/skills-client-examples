@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package skills.examples.loadData;
+package skills.examples.data.serviceRequestModel;
 
 public class SkillRequest {
     private String name;

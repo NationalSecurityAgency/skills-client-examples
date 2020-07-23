@@ -13,18 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package skills.examples;
+package skills.examples.utils;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @Component
@@ -36,8 +29,8 @@ public class SecretHelper {
     @Autowired
     RestTemplateFactory restTemplateFactory;
 
-    public String getSecret() {
-        String secretUrl = skillsConfig.getServiceUrl() + "/admin/projects/" + skillsConfig.getProjectId() + "/clientSecret";
+    public String getSecret(String projectId) {
+        String secretUrl = skillsConfig.getServiceUrl() + "/admin/projects/" + projectId + "/clientSecret";
         RestTemplate restTemplate = restTemplateFactory.getTemplateWithAuth();
         ResponseEntity<String> responseEntity = restTemplate.getForEntity(secretUrl, String.class);
         return responseEntity.getBody();
