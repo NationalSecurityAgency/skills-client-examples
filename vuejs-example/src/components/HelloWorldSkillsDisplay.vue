@@ -1,4 +1,4 @@
-<!---
+/*
 Copyright 2020 SkillTree
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,28 +12,22 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
- -->
-# vuejs-example
+*/
+<template>
+    <div>
+        <skills-display/>
+    </div>
+</template>
 
-## Project setup
-```
-npm install
-```
+<script>
+    import {SkillsDisplay} from '@skilltree/skills-client-vue';
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+    export default {
+        name: "HelloWorldSkillTree",
+        components: {SkillsDisplay},
+    }
+</script>
 
-### Compiles and minifies for production
-```
-npm run build
-```
+<style scoped>
 
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+</style>
