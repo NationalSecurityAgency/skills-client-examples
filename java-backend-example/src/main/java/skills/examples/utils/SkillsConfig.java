@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("skills.service")
 public class SkillsConfig {
     String serviceUrl;
-    String projectId;
     String authenticator;
     @JsonIgnore
     String username;
@@ -33,14 +32,12 @@ public class SkillsConfig {
     String authMode = "token";
 
     public String getServiceUrl() { return serviceUrl; }
-    public String getProjectId() { return projectId; }
     public String getAuthenticator() { return authenticator; }
     public String getUsername() { return username; }
     public String getPassword() { return password; }
     public String getAuthMode() { return authMode; }
 
     public void setServiceUrl(String serviceUrl) { this.serviceUrl = serviceUrl; }
-    public void setProjectId(String projectId) { this.projectId = projectId; }
     public void setAuthenticator(String authenticator) { this.authenticator = authenticator; }
     public void setUsername(String username) { this.username = username; }
     public void setPassword(String password) { this.password = password; }
