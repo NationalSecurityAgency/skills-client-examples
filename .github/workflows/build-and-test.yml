@@ -58,6 +58,12 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-
 
+
+    - name: get latest skill-service release
+      run: |
+        curl -s https://api.github.com/repos/NationalSecurityAgency/skills-service/releases/latest | grep browser_download_url | cut -d '"' -f 4 | wget -qi -
+        ls ./
+
     - name: Build java-backend-example service
       run: |
         cd java-backend-example
@@ -69,11 +75,6 @@ jobs:
         cd vuejs-example
         npm install
         cd ..
-
-    - name: get latest skill-service release
-      run: |
-        https://github.com/NationalSecurityAgency/skills-service/releases/download/1.1.3/skills-service-1.1.3.jar
-        ls ./
 
 
 
