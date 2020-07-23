@@ -81,7 +81,7 @@ jobs:
         cd e2e-tests
         npm install
         npm run services:start:skills-service
-        npm run services:startjava-backend-example
+        npm run services:start:java-backend-example
         npm run services:start:vuejs
         npm run cy:run
 
