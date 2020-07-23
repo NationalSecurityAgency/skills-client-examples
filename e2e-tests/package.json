@@ -1,0 +1,33 @@
+{
+  "name": "e2e-tests",
+  "version": "1.0.0",
+  "description": "End to end tests for SkillTree examples",
+  "main": "index.js",
+  "scripts": {
+    "licenseDepCheck": "license-checker --production --onlyAllow='MIT;ISC;Apache-2.0' --summary",
+    "licenseHeaderCheck": "license-check-and-add check -f '../license-add/license-add-config.json'",
+    "licenseHeaderAdd": "license-check-and-add add -f ../license-add/license-add-config.json",
+    "cy:open": "npm run licenseDepCheck && npm run licenseHeaderCheck && cypress open",
+    "cy:run": "npm run licenseDepCheck && npm run licenseHeaderCheck && cypress run",
+    "vuejs:start": "cd ../vuejs-example && npm run serve -- --port 8085",
+    "vuejs:start:ci": "npm run vuejs:start &",
+    "vuejs:wait": "npx wait-on -t 80000 http://localhost:8085",
+    "skills-service:start": "java -jar ../skills-service*.jar",
+    "skills-service:start:ci": "npm run skills-service:start &",
+    "skills-service:wait": "npx wait-on -t 80000 http://localhost:8080",
+    "java-backend-example:start": "java -jar ../java-backend-example/target/java-backend-example*.jar",
+    "java-backend-example:start:ci" : "npm run java-backend-example:start &",
+    "java-backend-example:wait": "npx wait-on -t 80000 http://localhost:8090",
+    "services:start:vuejs": "npm run vuejs:start:ci && npm run vuejs:wait",
+    "services:start:skills-service": "npm run skills-service:start:ci && npm run skills-service:wait",
+    "services:startjava-backend-example": "java-backend-example:start:ci && java-backend-example:wait"
+  },
+  "author": "SkillTree Team",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "cypress": "4.11.0",
+    "license-check-and-add": "3.0.4",
+    "license-checker": "25.0.1",
+    "wait-on": "5.1.0"
+  }
+}
