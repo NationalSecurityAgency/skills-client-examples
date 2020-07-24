@@ -27,6 +27,6 @@ context('Vue JS Example Tests', () => {
     cy.contains('"skillId": "IronMan"')
 
     cy.contains('Report Skill Using JS Util').click()
-    cy.contains('"skillId": "ThePolarExpress"')
+    cy.contains('"skillId": "DespicableMe"')
   })
 })

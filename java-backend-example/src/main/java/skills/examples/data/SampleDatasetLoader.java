@@ -31,15 +31,11 @@ public class SampleDatasetLoader {
 
     public Project getProject() {
         ObjectMapper jsonMapper = new ObjectMapper();
-        Project project = null;
         try {
-            project = jsonMapper.readValue(resourceFile.getURL(), Project.class);
+            Project project = jsonMapper.readValue(resourceFile.getURL(), Project.class);
+            return project;
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load sample datea", e);
+            throw new RuntimeException("Failed to load sample data", e);
         }
-        project.setName("MoviesA");
-        project.setId(project.getName().toLowerCase());
-
-        return project;
     }
 }

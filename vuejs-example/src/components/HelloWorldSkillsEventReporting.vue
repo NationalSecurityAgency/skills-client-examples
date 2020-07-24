@@ -27,7 +27,7 @@ limitations under the License.
         name: "HelloWorldSkillsEventReporting",
         methods: {
             report() {
-                SkillsReporter.reportSkill('ThePolarExpress')
+                SkillsReporter.reportSkill('DespicableMe')
             }
         },
     }

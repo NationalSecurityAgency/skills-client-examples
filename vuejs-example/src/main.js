@@ -22,7 +22,7 @@ Vue.use(SkillsDirective);
 
 SkillsConfiguration.configure({
   serviceUrl: 'http://localhost:8080',
-  projectId: 'moviesa',
+  projectId: 'movies',
   authenticator: 'http://localhost:8090/api/users/user4@email.com/token',
 });
 
