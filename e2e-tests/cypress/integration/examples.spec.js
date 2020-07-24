@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-context('Vue JS Example Tests', () => {
+context('Examples Tests', () => {
+
+  beforeEach(() => {
+    cy.server().route('/api/users/user4@email.com/token').as('getToken')
+  })
 
   it('test vue.js example', () => {
-    cy.server().route('/api/users/user4@email.com/token').as('getToken')
-
     cy.visit('http://localhost:8085/')
     cy.wait('@getToken')
     cy.wrapIframe().contains('Overall Points');
@@ -28,5 +30,15 @@ context('Vue JS Example Tests', () => {
 
     cy.contains('Report Skill Using JS Util').click()
     cy.contains('"skillId": "DespicableMe"')
+  })
+
+
+  it('test react example', () => {
+    cy.visit('http://localhost:3000/')
+    cy.wait('@getToken')
+    cy.wrapIframe().contains('Overall Points');
+
+    cy.get('button').contains('Report Skill').click()
+    cy.contains('"skillId": "IronMan"')
   })
 })

@@ -3,6 +3,13 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import { SkillsConfiguration } from '@skilltree/skills-client-react';
+
+SkillsConfiguration.configure({
+  serviceUrl: 'http://localhost:8080',
+  projectId: 'movies',
+  authenticator: 'http://localhost:8090/api/users/user4@email.com/token',
+});
 
 ReactDOM.render(
   <React.StrictMode>
