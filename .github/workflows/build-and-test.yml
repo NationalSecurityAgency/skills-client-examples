@@ -93,6 +93,8 @@ jobs:
         path: |
           ./e2e-tests/cypress
           ./e2e-tests/logs
+          ./e2e-tests/target/logs
+          ./vuejs-example/target/logs
 
 
 

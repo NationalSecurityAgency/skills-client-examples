@@ -9,7 +9,7 @@
     "licenseHeaderAdd": "license-check-and-add add -f ../license-add/license-add-config.json",
     "cy:open": "npm run licenseDepCheck && npm run licenseHeaderCheck && cypress open",
     "cy:run": "npm run licenseDepCheck && npm run licenseHeaderCheck && cypress run",
-    "vuejs:start": "cd ../vuejs-example && npm run serve -- --port 8085",
+    "vuejs:start": "cd ../vuejs-example && mkdir -p ./target/logs && npm run serve -- --port 8085 > ./target/logs/vuejs.out &",
     "vuejs:start:ci": "npm run vuejs:start &",
     "vuejs:wait": "npx wait-on -t 80000 http://localhost:8085",
     "skills-service:start": "mkdir -p ./target/logs && java -jar ../skills-service*.jar > ./target/logs/skills-service.out &",
@@ -17,7 +17,7 @@
     "skills-service:wait": "npx wait-on -t 80000 http://localhost:8080",
     "java-backend-example:start": "mkdir -p ./target/logs && java -jar ../java-backend-example/target/java-backend-example*.jar > ./target/logs/java-backend-example.out &",
     "java-backend-example:start:ci" : "npm run java-backend-example:start &",
-    "java-backend-example:wait": "npx wait-on -t 80000 http://localhost:8090",
+    "java-backend-example:wait": "npx wait-on -t 300000 http://localhost:8090",
     "services:start:vuejs": "npm run vuejs:start:ci && npm run vuejs:wait",
     "services:start:skills-service": "npm run skills-service:start:ci && npm run skills-service:wait",
     "services:start:java-backend-example": "npm run java-backend-example:start:ci && npm run java-backend-example:wait"
