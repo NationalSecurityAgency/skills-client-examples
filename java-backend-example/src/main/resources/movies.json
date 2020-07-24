@@ -41,7 +41,7 @@
             "name": "Harry Potter Collection"
         }
     ],
-    "id": "movie",
+    "id": "movies",
     "subjects": [
         {
             "iconClass": "fas fa-running",
