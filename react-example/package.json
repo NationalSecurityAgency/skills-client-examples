@@ -1,21 +1,30 @@
 {
   "name": "react-example",
   "version": "0.1.0",
-  "private": true,
+  "author": "SkillTree Team",
+  "license": "Apache-2.0",
+  "description": "SkillTree React examples",
+  "scripts": {
+    "licenseDepCheck": "license-checker --production --onlyAllow='MIT;ISC;Apache-2.0' --summary",
+    "licenseHeaderCheck": "license-check-and-add check -f '../license-add/license-add-config.json'",
+    "licenseHeaderAdd": "license-check-and-add add -f ../license-add/license-add-config.json",
+    "start": "npm run licenseDepCheck && npm run licenseHeaderCheck && react-scripts start",
+    "build": "npm run licenseDepCheck && npm run licenseHeaderCheck && react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
   "dependencies": {
     "@skilltree/skills-client-react": "^2.0.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "devDependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
+    "license-check-and-add": "^3.0.4",
+    "license-checker": "^25.0.1",
     "react-scripts": "3.4.1"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": "react-app"
