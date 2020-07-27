@@ -12,6 +12,9 @@
     "vuejs:start": "cd ../vuejs-example && mkdir -p ./target/logs && npm run serve -- --port 8085 > ./target/logs/vuejs.out &",
     "vuejs:start:ci": "npm run vuejs:start &",
     "vuejs:wait": "npx wait-on -t 80000 http://localhost:8085",
+    "js:start": "cd ../js-example && mkdir -p ./target/logs && npm run serve > ./target/logs/js.out &",
+    "js:start:ci": "npm run js:start &",
+    "js:wait": "npx wait-on -t 80000 http://localhost:8092",
     "react:start": "cd ../react-example && mkdir -p ./target/logs && npm run start > ./target/logs/react.out &",
     "react:start:ci": "npm run react:start &",
     "react:wait": "npx wait-on -t 80000 http://localhost:3000",
@@ -25,6 +28,7 @@
     "services:start:skills-service": "npm run skills-service:start:ci && npm run skills-service:wait",
     "services:start:java-backend-example": "npm run java-backend-example:start:ci && npm run java-backend-example:wait",
     "services:start:react": "npm run react:start:ci && npm run react:wait",
+    "services:start:js": "npm run js:start:ci && npm run js:wait",
     "services:kill": "fuser -k 8080/tcp && fuser -k 8090/tcp && fuser -k 8086/tcp"
   },
   "author": "SkillTree Team",

@@ -41,4 +41,14 @@ context('Examples Tests', () => {
     cy.get('button').contains('Report Skill').click()
     cy.contains('"skillId": "IronMan"')
   })
+
+
+  it('test pure js example', () => {
+    cy.visit('http://localhost:8092/')
+    cy.wait('@getToken')
+    cy.wrapIframe().contains('Overall Points');
+
+    cy.get('button').contains('Report Skill').click()
+    cy.contains('"skillId": "IronMan"')
+  })
 })

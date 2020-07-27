@@ -82,6 +82,12 @@ jobs:
         npm install
         cd ..
 
+    - name: Install js-example
+      run: |
+        cd js-example
+        npm install
+        cd ..
+
     - name: Run Cypress Tests
       run: |
         cd e2e-tests
@@ -90,6 +96,7 @@ jobs:
         npm run services:start:java-backend-example
         npm run services:start:vuejs
         npm run services:start:react
+        npm run services:start:js
         npm run cy:run
 
     - name: upload result artifacts
