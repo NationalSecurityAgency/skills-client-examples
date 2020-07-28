@@ -110,6 +110,85 @@ jobs:
           ./e2e-tests/target/logs
           ./vuejs-example/target/logs
 
+  build-and-test-with-docker-service:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-node@v2-beta
+      with:
+        node-version: '12'
+
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@v3
+      with:
+        maven-version: 3.6.3
+
+    - uses: actions/setup-java@v1
+      with:
+        java-version: '11.X.X' # The JDK version to make available on the path.
+
+    - name: Print Versions
+      run: |
+        mvn --version
+        java -version
+
+    - name: Cache local Maven repository
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
+    - name: run skill-service
+      run: docker run --name skills-service -d -p 8080:8080 skilltree/skills-service:latest
+
+    - name: Build java-backend-example service
+      run: |
+        cd java-backend-example
+        mvn --batch-mode install
+        cd ..
+
+    - name: Install vuejs-example
+      run: |
+        cd vuejs-example
+        npm install
+        cd ..
+
+    - name: Install react-example
+      run: |
+        cd react-example
+        npm install
+        cd ..
+
+    - name: Install js-example
+      run: |
+        cd js-example
+        npm install
+        cd ..
+
+    - name: Run Cypress Tests
+      run: |
+        cd e2e-tests
+        npm install
+        npm run services:start:skills-service
+        npm run services:start:java-backend-example
+        npm run services:start:vuejs
+        npm run services:start:react
+        npm run services:start:js
+        npm run cy:run
+
+    - name: upload result artifacts
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: result artifacts
+        path: |
+          ./e2e-tests/cypress
+          ./e2e-tests/logs
+          ./e2e-tests/target/logs
+          ./vuejs-example/target/logs
 
 
 
