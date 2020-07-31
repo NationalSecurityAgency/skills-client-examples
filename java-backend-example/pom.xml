@@ -10,7 +10,7 @@
     </parent>
     <groupId>skill-tree</groupId>
     <artifactId>java-backend-example</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>java-backend-example</name>
     <description>SkillTree Backend example using Spring Boot</description>
 
@@ -18,10 +18,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
