@@ -10,12 +10,15 @@
     "licenseHeaderAdd": "license-check-and-add add -f ../license-add/license-add-config.json",
     "serve": "npm run licenseDepCheck && npm run licenseHeaderCheck && vue-cli-service serve",
     "build": "npm run licenseDepCheck && npm run licenseHeaderCheck && vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "dependencies": {
     "@skilltree/skills-client-vue": "^2.0.1",
     "core-js": "^3.6.5",
-    "vue": "^2.6.11"
+    "vue": "^2.6.11",
+    "snyk": "^1.379.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.4.0",
@@ -46,5 +49,6 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "snyk": true
 }
