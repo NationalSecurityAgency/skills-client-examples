@@ -144,7 +144,9 @@ jobs:
           ${{ runner.os }}-maven-
 
     - name: run skill-service
-      run: docker run --name skills-service -d -p 8080:8080 skilltree/skills-service:latest
+      run: |
+        LATEST_TAG=$(wget -q https://registry.hub.docker.com/v1/repositories/skilltree/skills-service/tags -O - | tr -d '[]" ' | tr '}' '\n' | awk -F: '{print $3}' | sort | tail -n1)
+        docker run --name skills-service -d -p 8080:8080 skilltree/skills-service:${LATEST_TAG}
 
     - name: Build java-backend-example service
       run: |
