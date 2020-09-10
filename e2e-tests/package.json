@@ -18,6 +18,9 @@
     "react:start": "cd ../react-example && mkdir -p ./target/logs && npm run start > ./target/logs/react.out &",
     "react:start:ci": "npm run react:start &",
     "react:wait": "npx wait-on -t 80000 http://localhost:3000",
+    "ng:start": "cd ../ng-example && mkdir -p ./target/logs && npm run start > ./target/logs/ng.out &",
+    "ng:start:ci": "npm run ng:start &",
+    "ng:wait": "npx wait-on -t 80000 http://localhost:4200",
     "skills-service:start": "mkdir -p ./target/logs && java -jar ../skills-service*.jar > ./target/logs/skills-service.out &",
     "skills-service:start:ci": "npm run skills-service:start &",
     "skills-service:wait": "npx wait-on -t 80000 http://localhost:8080",
@@ -28,6 +31,7 @@
     "services:start:skills-service": "npm run skills-service:start:ci && npm run skills-service:wait",
     "services:start:java-backend-example": "npm run java-backend-example:start:ci && npm run java-backend-example:wait",
     "services:start:react": "npm run react:start:ci && npm run react:wait",
+    "services:start:ng": "npm run ng:start:ci && npm run ng:wait",
     "services:start:js": "npm run js:start:ci && npm run js:wait",
     "services:kill": "fuser -k 8080/tcp && fuser -k 8090/tcp && fuser -k 8086/tcp"
   },
