@@ -26,7 +26,7 @@
     "@angular/platform-browser-dynamic": "~10.0.3",
     "@angular/router": "~10.0.3",
     "@skilltree/skills-client-ng": "^3.0.0",
-    "rxjs": "~6.5.5",
+    "rxjs": "~6.6.2",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.3"
   },
