@@ -18,8 +18,13 @@ import { SkillsReporter } from '@skilltree/skills-client-ng';
 
 @Component({
   selector: 'app-hello-world-event-reporting',
-  templateUrl: './hello-world-event-reporting.component.html',
-  styleUrls: ['./hello-world-event-reporting.component.css']
+  template: `
+    <div>
+      <button [skilltree]="'IronMan'">Report Skill Using Directive</button>
+      OR
+      <button (click)="report()">Report Skill Using JS Util</button>
+    </div>
+  `
 })
 export class HelloWorldEventReportingComponent implements OnInit {
 

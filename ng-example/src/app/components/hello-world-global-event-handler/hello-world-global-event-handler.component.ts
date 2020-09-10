@@ -18,8 +18,34 @@ import { SkillsReporter } from '@skilltree/skills-client-ng';
 
 @Component({
   selector: 'app-hello-world-global-event-handler',
-  templateUrl: './hello-world-global-event-handler.component.html',
-  styleUrls: ['./hello-world-global-event-handler.component.css']
+  template: `
+    <div class="res">
+      <div class="res">
+    <pre>
+      <code>
+{{ result }}
+      </code>
+    </pre>
+      </div>
+    </div>
+  `,
+  styles: [`
+    pre {
+      margin: auto;
+      padding: 1rem;
+      border: 1px solid #dddddd !important;
+      overflow: auto;
+      border-radius: 6px;
+      background-color: #f6f8fa;
+      min-height: 3rem;
+      max-width: 80rem;
+
+    }
+
+    .res {
+      text-align: left;
+    }
+  `]
 })
 export class HelloWorldGlobalEventHandlerComponent implements OnInit {
 
