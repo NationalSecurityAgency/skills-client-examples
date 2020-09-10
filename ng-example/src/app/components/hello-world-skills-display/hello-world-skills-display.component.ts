@@ -17,8 +17,11 @@ import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-hello-world-skills-display',
-  templateUrl: './hello-world-skills-display.component.html',
-  styleUrls: ['./hello-world-skills-display.component.css']
+  template: `
+    <div>
+      <skills-display></skills-display>
+    </div>
+  `
 })
 export class HelloWorldSkillsDisplayComponent implements OnInit {
 

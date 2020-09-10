@@ -84,6 +84,12 @@ jobs:
         npm install
         cd ..
 
+    - name: Install ng-example
+      run: |
+        cd ng-example
+        npm install
+        cd ..
+
     - name: Install js-example
       run: |
         cd js-example
@@ -97,6 +103,7 @@ jobs:
         npm run services:start:skills-service
         npm run services:start:java-backend-example
         npm run services:start:vuejs
+        npm run services:start:ng
         npm run services:start:react
         npm run services:start:js
         npm run cy:run
@@ -111,6 +118,9 @@ jobs:
           ./e2e-tests/logs
           ./e2e-tests/target/logs
           ./vuejs-example/target/logs
+          ./ng-example/target/logs
+          ./react-example/target/logs
+          ./js-example/target/logs
 
   build-and-test-with-docker-service:
     runs-on: ubuntu-latest
@@ -144,7 +154,9 @@ jobs:
           ${{ runner.os }}-maven-
 
     - name: run skill-service
-      run: docker run --name skills-service -d -p 8080:8080 skilltree/skills-service:latest
+      run: |
+        LATEST_TAG=$(wget -q https://registry.hub.docker.com/v1/repositories/skilltree/skills-service/tags -O - | tr -d '[]" ' | tr '}' '\n' | awk -F: '{print $3}' | sort | tail -n1)
+        docker run --name skills-service -d -p 8080:8080 skilltree/skills-service:${LATEST_TAG}
 
     - name: Build java-backend-example service
       run: |
@@ -164,6 +176,12 @@ jobs:
         npm install
         cd ..
 
+    - name: Install ng-example
+      run: |
+        cd ng-example
+        npm install
+        cd ..
+
     - name: Install js-example
       run: |
         cd js-example
@@ -174,9 +192,9 @@ jobs:
       run: |
         cd e2e-tests
         npm install
-        npm run services:start:skills-service
         npm run services:start:java-backend-example
         npm run services:start:vuejs
+        npm run services:start:ng
         npm run services:start:react
         npm run services:start:js
         npm run cy:run
@@ -191,8 +209,6 @@ jobs:
           ./e2e-tests/logs
           ./e2e-tests/target/logs
           ./vuejs-example/target/logs
-
-
-
-
-
+          ./ng-example/target/logs
+          ./react-example/target/logs
+          ./js-example/target/logs

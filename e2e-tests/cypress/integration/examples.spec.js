@@ -32,6 +32,17 @@ context('Examples Tests', () => {
     cy.contains('"skillId": "DespicableMe"')
   })
 
+  it('test ng example', () => {
+    cy.visit('http://localhost:4200/')
+    cy.wait('@getToken')
+    cy.wrapIframe().contains('Overall Points');
+
+    cy.contains('Report Skill Using Directive').click()
+    cy.contains('"skillId": "IronMan"')
+
+    cy.contains('Report Skill Using JS Util').click()
+    cy.contains('"skillId": "DespicableMe"')
+  })
 
   it('test react example', () => {
     cy.visit('http://localhost:3000/')
