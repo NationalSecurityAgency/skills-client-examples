@@ -1,0 +1,83 @@
+<!--
+Copyright 2020 SkillTree
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>SkillTree Pure JS Example</title>
+
+  <script type="module">
+    // 1. Import SkillTree Components
+    import {
+      SkillsConfiguration,
+      SkillsDisplayJS,
+      SkillsReporter
+    } from './skills-client-js.esm.min.js'
+
+    // 2. Configure - only need to happen once per app
+    SkillsConfiguration.configure({
+      serviceUrl: 'https://skilltree.evoforge.org',
+      projectId: 'VeryCoolProject',
+      authenticator: 'gitlab',
+    });
+
+    // 3. Embed Skill Display Component
+    const clientDisplay = new SkillsDisplayJS({ version: 1 });
+    clientDisplay.attachTo(document.querySelector('#skills-client-container'));
+
+    // 4. Report this skill when button is ckicked
+    document.querySelector('#reportSkillButton').onclick = function () {
+      SkillsReporter.reportSkill('IronMan');
+    };
+
+    // 5. Add Global Success Handler - handle all the results to matter where they were reported
+    // just so we can always see the response
+    SkillsReporter.configure({ notifyIfSkillNotApplied: true });
+    SkillsReporter.addSuccessHandler((result) => {
+      document.querySelector('#reportResultContainer').innerHTML = JSON.stringify(result, null, ' ');
+    });
+  </script>
+  <style>
+    body {
+      text-align: center;
+    }
+
+    pre {
+      margin: auto;
+      ;
+      padding: 1rem;
+      border: 1px solid #dddddd !important;
+      overflow: auto;
+      border-radius: 6px;
+      background-color: #f6f8fa;
+      min-height: 3rem;
+      max-width: 80rem;
+    }
+  </style>
+
+</head>
+
+<body>
+  <h1>Current User's Skills Display</h1>
+  <div id="skills-client-container"></div>
+  <h1>Report Skill Events</h1>
+  <button id="reportSkillButton">Report Skill</button>
+  <h3>Result</h3>
+  <pre><code><div id="reportResultContainer"></div></code></pre>
+</body>
+
+</html>

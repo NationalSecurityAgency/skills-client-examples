@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Static Site</title>
+
+  <script type="text/javascript" src="./skills-client-js.umd.min.js"></script>
+  <script>
+    // code using SkillsConfiguration, SkillsDisplay and SkillsReporter examples
+    // in the following sections, but using the global SkillsClient wrapper
+
+    window.SkillsClient.SkillsConfiguration.configure({
+      serviceUrl: 'https://skilltree.evoforge.org',
+      projectId: 'VeryCoolProject',
+      authenticator: 'gitlab',
+    });
+  </script>
+
+</head>
+
+<body>
+  <div>
+    <h1>Static app</h1>
+    <div id="skills-client-container"></div>
+  </div>
+
+  <script>
+    SkillsClient.SkillsConfiguration.afterConfigure().then(() => {
+      console.log('Hello 1');
+      const initializeSkillsDisplay = () => {
+        console.log('Hello 2');
+        const clientDisplay = new SkillsClient.SkillsDisplayJS();
+        clientDisplay.attachTo(document.querySelector('#skills-client-container'));
+      };
+      console.log('Hello 3');
+      initializeSkillsDisplay();
+    });
+  </script>
+
+</body>
+
+</html>
