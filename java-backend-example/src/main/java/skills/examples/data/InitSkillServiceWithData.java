@@ -37,9 +37,7 @@ import skills.examples.data.serviceRequestModel.*;
 import javax.annotation.PostConstruct;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Component
 public class InitSkillServiceWithData {
@@ -57,6 +55,7 @@ public class InitSkillServiceWithData {
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMMM d, yyyy");
 
+    private int numOfUsers = 10;
 
     @PostConstruct
     void load() throws Exception {
@@ -79,6 +78,7 @@ public class InitSkillServiceWithData {
         String projectUrl = serviceUrl + "/admin/projects/" + projectId;
         addSubjects(project, rest, projectUrl);
         addBadges(project, rest, projectUrl);
+        addDep(project, rest, projectUrl);
         reportSkills(rest, project);
 
         log.info("Project [" + projectId + "] was created!");
@@ -102,9 +102,25 @@ public class InitSkillServiceWithData {
             String subjectUrl = projectUrl + "/subjects/" + subject.getId();
             post(rest, subjectUrl, new SubjRequest(subject.getName(), "", subject.getIconClass()));
 
-            for (Movie movie : subject.getMovies()) {
+            List<Movie> movies = subject.getMovies();
+            Set<String> ids = new HashSet<>();
+            for (int i = 0; i < movies.size(); i++) {
+                Movie movie = movies.get(i);
+
+                // ignore dups
+                if (ids.contains(movie.getId())) {
+                    continue;
+                }
+                ids.add(movie.getId());
+
                 String skillUrl = subjectUrl + "/skills/" + movie.getId();
                 SkillRequest skillRequest = new SkillRequest();
+                if (i % 3 == 0) {
+                    skillRequest.setNumPerformToCompletion(3);
+                } else if (i % 2 == 0) {
+                    skillRequest.setNumPerformToCompletion(2);
+                }
+
                 skillRequest.setName(movie.getTitle());
                 skillRequest.setDescription(buildDescription(movie));
                 skillRequest.setHelpUrl(movie.getHomePage());
@@ -127,8 +143,25 @@ public class InitSkillServiceWithData {
         }
     }
 
+    private void addDep(Project project, RestTemplate rest, String projectUrl) {
+        post(rest, projectUrl + "/skills/TheAvengers/dependency/GuardiansoftheGalaxyVol2", null);
+        post(rest, projectUrl + "/skills/GuardiansoftheGalaxyVol2/dependency/GuardiansoftheGalaxy", null);
+        post(rest, projectUrl + "/skills/TheAvengers/dependency/DoctorStrange", null);
+        post(rest, projectUrl + "/skills/TheAvengers/dependency/ThorRagnarok", null);
+        post(rest, projectUrl + "/skills/AvengersAgeofUltron/dependency/Deadpool", null);
+        post(rest, projectUrl + "/skills/TheAvengers/dependency/CaptainAmericaCivilWar", null);
+        post(rest, projectUrl + "/skills/AvengersAgeofUltron/dependency/TheAvengers", null);
+        post(rest, projectUrl + "/skills/AvengersAgeofUltron/dependency/WonderWoman", null);
+    }
+
     private void reportSkills(RestTemplate rest, Project project) {
-        double[] usersAndAchievementPercent = { .1, .24, .5, .7, .8 };
+        Random random = new Random();
+
+        double[] usersAndAchievementPercent = new double[numOfUsers];
+        for (int i = 0; i < numOfUsers; i++) {
+            usersAndAchievementPercent[i] = random.nextDouble();
+        }
+
         int numUsers = usersAndAchievementPercent.length;
         List<String> skillIds = new ArrayList<>();
         for (Subject subject : project.getSubjects()) {
@@ -136,7 +169,8 @@ public class InitSkillServiceWithData {
                 skillIds.add(movie.getId());
             }
         }
-        Random random = new Random();
+
+
         for (int i = 0; i < numUsers; i++) {
             String userId = "user" + i + "@email.com";
             double percentToAchieve = usersAndAchievementPercent[i];
@@ -147,8 +181,9 @@ public class InitSkillServiceWithData {
                     "   May take a minute.... Please hold!");
 
             int numPerDay = (int) (eventsToSend / numOfDays);
+            long oneDay = 1000l * 60l * 60l * 24l;
             for (int dayCounter = 0; dayCounter < numOfDays; dayCounter++) {
-                long days = (long)dayCounter * 1000l * 60l * 60l * 24l;
+                long days = (long)dayCounter * oneDay;
                 long timestamp =  System.currentTimeMillis() - days;
                 for (int countSkill = 0; countSkill < numPerDay; countSkill++) {
                     String skillId = skillIds.get(random.nextInt(skillIds.size()));
