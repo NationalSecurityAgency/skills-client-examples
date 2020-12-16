@@ -18,7 +18,7 @@ package skills.examples.data.serviceRequestModel;
 public class SkillRequest {
     private String name;
     private Integer pointIncrement = 20;
-    private Integer numPerformToCompletion = 3;
+    private Integer numPerformToCompletion = 1;
     private Integer pointIncrementInterval = 12;
     private Integer numMaxOccurrencesIncrementInterval = 1;
     private String description;
