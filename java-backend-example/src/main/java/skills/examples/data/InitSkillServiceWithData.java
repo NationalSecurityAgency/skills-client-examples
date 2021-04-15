@@ -60,8 +60,11 @@ public class InitSkillServiceWithData {
 
     @PostConstruct
     void load() throws Exception {
+        log.info("SkillsConfig ["+skillsConfig+"]");
         Project project = sampleDatasetLoader.getProject();
-        createUser(skillsConfig.getServiceUrl() + "/createAccount");
+        if (!skillsConfig.getAuthMode().equalsIgnoreCase("pki")) {
+            createUser(skillsConfig.getServiceUrl() + "/createAccount");
+        }
 
         String serviceUrl = skillsConfig.getServiceUrl();
         RestTemplate rest = restTemplateFactory.getTemplateWithAuth();
@@ -138,7 +141,7 @@ public class InitSkillServiceWithData {
         }
         Random random = new Random();
         for (int i = 0; i < numUsers; i++) {
-            String userId = "user" + i + "@email.com";
+            String userId = "User" + i;
             double percentToAchieve = usersAndAchievementPercent[i];
             int eventsToSend = (int) (skillIds.size() * percentToAchieve) * 3;
             int numOfDays = percentToAchieve > .5 ? 46 : 12;
@@ -159,7 +162,7 @@ public class InitSkillServiceWithData {
         }
     }
 
-    private String buildDescription(Movie movie) {
+    private String  buildDescription(Movie movie) {
         StringBuilder builder = new StringBuilder();
         builder.append(movie.getOverview());
         if (!StringUtils.isEmpty(movie.getTagline())) {

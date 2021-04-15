@@ -17,6 +17,7 @@ package skills.examples.utils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.core.style.ToStringCreator;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -42,4 +43,15 @@ public class SkillsConfig {
     public void setUsername(String username) { this.username = username; }
     public void setPassword(String password) { this.password = password; }
     public void setAuthMode(String authMode) { this.authMode = authMode; }
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this)
+                .append("serviceUrl", serviceUrl)
+                .append("authenticator", authenticator)
+                .append("username", username)
+                .append("password", password)
+                .append("authMode", authMode)
+                .toString();
+    }
 }
