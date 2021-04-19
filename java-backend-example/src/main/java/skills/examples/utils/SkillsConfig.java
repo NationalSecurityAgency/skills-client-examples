@@ -31,18 +31,24 @@ public class SkillsConfig {
     String password;
     @JsonIgnore
     String authMode = "token";
+    Boolean createRootAccount = false;
 
     public String getServiceUrl() { return serviceUrl; }
     public String getAuthenticator() { return authenticator; }
     public String getUsername() { return username; }
     public String getPassword() { return password; }
     public String getAuthMode() { return authMode; }
+    public Boolean getCreateRootAccount() { return createRootAccount; }
+    public Boolean isPkiMode() {
+        return authMode.equalsIgnoreCase("pki");
+    }
 
     public void setServiceUrl(String serviceUrl) { this.serviceUrl = serviceUrl; }
     public void setAuthenticator(String authenticator) { this.authenticator = authenticator; }
     public void setUsername(String username) { this.username = username; }
     public void setPassword(String password) { this.password = password; }
     public void setAuthMode(String authMode) { this.authMode = authMode; }
+    public void setCreateRootAccount(Boolean createRootAccount) { this.createRootAccount = createRootAccount; }
 
     @Override
     public String toString() {
@@ -52,6 +58,7 @@ public class SkillsConfig {
                 .append("username", username)
                 .append("password", password)
                 .append("authMode", authMode)
+                .append("createRootAccount", createRootAccount)
                 .toString();
     }
 }

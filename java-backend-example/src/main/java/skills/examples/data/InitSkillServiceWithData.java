@@ -25,16 +25,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import skills.examples.utils.RestTemplateFactory;
-import skills.examples.utils.SkillsConfig;
-import skills.examples.data.serviceRequestModel.UserInfoRequest;
 import skills.examples.data.model.Badge;
 import skills.examples.data.model.Movie;
 import skills.examples.data.model.Project;
 import skills.examples.data.model.Subject;
 import skills.examples.data.serviceRequestModel.*;
+import skills.examples.utils.RestTemplateFactory;
+import skills.examples.utils.SkillsConfig;
 
 import javax.annotation.PostConstruct;
+import java.io.FileInputStream;
+import java.security.KeyStore;
+import java.security.cert.X509Certificate;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -62,14 +64,16 @@ public class InitSkillServiceWithData {
     void load() throws Exception {
         log.info("SkillsConfig ["+skillsConfig+"]");
         Project project = sampleDatasetLoader.getProject();
-        if (!skillsConfig.getAuthMode().equalsIgnoreCase("pki")) {
+        if (skillsConfig.getCreateRootAccount()) {
+            createRootAccount();
+        } else if (!skillsConfig.isPkiMode()) {
             createUser(skillsConfig.getServiceUrl() + "/createAccount");
         }
 
         String serviceUrl = skillsConfig.getServiceUrl();
         RestTemplate rest = restTemplateFactory.getTemplateWithAuth();
 
-        if (rest.getForEntity(serviceUrl + "/app/projects", String.class).getBody().contains(project.getName())){
+        if (rest.getForEntity(serviceUrl + "/app/projects", String.class).getBody().contains(project.getName())) {
             log.info("Project [" + project.getName() + "] already exist!");
             return;
         }
@@ -131,7 +135,7 @@ public class InitSkillServiceWithData {
     }
 
     private void reportSkills(RestTemplate rest, Project project) {
-        double[] usersAndAchievementPercent = { .1, .24, .5, .7, .8 };
+        double[] usersAndAchievementPercent = {.1, .24, .5, .7, .8};
         int numUsers = usersAndAchievementPercent.length;
         List<String> skillIds = new ArrayList<>();
         for (Subject subject : project.getSubjects()) {
@@ -151,8 +155,8 @@ public class InitSkillServiceWithData {
 
             int numPerDay = (int) (eventsToSend / numOfDays);
             for (int dayCounter = 0; dayCounter < numOfDays; dayCounter++) {
-                long days = (long)dayCounter * 1000l * 60l * 60l * 24l;
-                long timestamp =  System.currentTimeMillis() - days;
+                long days = (long) dayCounter * 1000l * 60l * 60l * 24l;
+                long timestamp = System.currentTimeMillis() - days;
                 for (int countSkill = 0; countSkill < numPerDay; countSkill++) {
                     String skillId = skillIds.get(random.nextInt(skillIds.size()));
                     String reportUrl = skillsConfig.getServiceUrl() + "/api/projects/" + project.getId() + "/skills/" + skillId;
@@ -162,7 +166,7 @@ public class InitSkillServiceWithData {
         }
     }
 
-    private String  buildDescription(Movie movie) {
+    private String buildDescription(Movie movie) {
         StringBuilder builder = new StringBuilder();
         builder.append(movie.getOverview());
         if (!StringUtils.isEmpty(movie.getTagline())) {
@@ -204,7 +208,7 @@ public class InitSkillServiceWithData {
     }
 
     private void post(RestTemplate restTemplate, String url, Object data) {
-        if (log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("POST: " + url + " with [" + data + "]");
         }
         restTemplate.postForEntity(url, data, String.class);
@@ -222,4 +226,33 @@ public class InitSkillServiceWithData {
         }
     }
 
+    private void createRootAccount() {
+        String url = skillsConfig.getServiceUrl();
+        RestTemplate restTemplate = new RestTemplate();
+        if (skillsConfig.isPkiMode()) {
+            restTemplate.put(url + "/grantFirstRoot", null);
+            log.info("\n-----------------\nCreated Root User:\n  DN=[" + getDn() + "]\n----------------");
+        } else {
+            UserInfoRequest userInfoRequest = new UserInfoRequest("Bill", "Gosling", skillsConfig.getUsername(), skillsConfig.getPassword());
+            HttpEntity request = new HttpEntity<>(userInfoRequest, new HttpHeaders());
+            restTemplate.put(url + "/createRootAccount", request);
+            log.info("\n-----------------\nCreated Root User:\n  email=[" + userInfoRequest.getEmail() + "]\n  password=[" + userInfoRequest.getPassword() + "]\n----------------");
+        }
+    }
+
+    private String getDn() {
+        String dn = null;
+        try {
+            String keystore = System.getProperty("javax.net.ssl.keyStore");
+            String keystoreType = System.getProperty("javax.net.ssl.keyStoreType");
+            char[] pwdArray = System.getProperty("javax.net.ssl.keyStorePassword").toCharArray();
+            KeyStore ks = KeyStore.getInstance(keystoreType);
+            ks.load(new FileInputStream(keystore), pwdArray);
+            dn = ((X509Certificate) ks.getCertificate(ks.aliases().nextElement())).getIssuerX500Principal().getName();
+        } catch (Exception e) {
+            log.error("Unable to extract DN from certificate", e);
+        }
+
+        return dn;
+    }
 }
