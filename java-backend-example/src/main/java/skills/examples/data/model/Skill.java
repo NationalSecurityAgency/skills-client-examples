@@ -15,29 +15,10 @@
  */
 package skills.examples.data.model;
 
-import java.util.List;
-
-public class Subject {
+public class Skill {
     private String id;
     private String name;
-    private String iconClass;
-    private List<Skill> skills;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getIconClass() {
-        return iconClass;
-    }
-
-    public void setIconClass(String iconClass) {
-        this.iconClass = iconClass;
-    }
+    private String description;
 
     public String getId() {
         return id;
@@ -47,7 +28,29 @@ public class Subject {
         this.id = id;
     }
 
-    public List<Skill> getSkills() { return skills; }
+    public String getName() {
+        return name;
+    }
 
-    public void setSkills(List<Skill> skills) { this.skills = skills; }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getHelpUrl() {
+        return helpUrl;
+    }
+
+    public void setHelpUrl(String helpUrl) {
+        this.helpUrl = helpUrl;
+    }
+
+    private String helpUrl;
 }

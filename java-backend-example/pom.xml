@@ -104,6 +104,7 @@
                 <configuration>
                     <header>${basedir}/../license-add/LICENSE-HEADER.txt</header>
                     <excludes>
+                        <exclude>**/*.json</exclude>
                         <exclude>**/*.xml</exclude>
                         <exclude>**/*.jks</exclude>
                         <exclude>**/*.ftl</exclude>

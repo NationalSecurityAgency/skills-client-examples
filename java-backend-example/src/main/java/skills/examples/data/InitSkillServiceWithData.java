@@ -22,12 +22,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import skills.examples.data.model.Badge;
-import skills.examples.data.model.Movie;
 import skills.examples.data.model.Project;
+import skills.examples.data.model.Skill;
 import skills.examples.data.model.Subject;
 import skills.examples.data.serviceRequestModel.*;
 import skills.examples.utils.RestTemplateFactory;
@@ -37,7 +36,6 @@ import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +61,6 @@ public class InitSkillServiceWithData {
     @PostConstruct
     void load() throws Exception {
         log.info("SkillsConfig ["+skillsConfig+"]");
-        Project project = sampleDatasetLoader.getProject();
         if (skillsConfig.getCreateRootAccount()) {
             createRootAccount();
         } else if (!skillsConfig.isPkiMode()) {
@@ -73,22 +70,25 @@ public class InitSkillServiceWithData {
         String serviceUrl = skillsConfig.getServiceUrl();
         RestTemplate rest = restTemplateFactory.getTemplateWithAuth();
 
-        if (rest.getForEntity(serviceUrl + "/app/projects", String.class).getBody().contains(project.getName())) {
-            log.info("Project [" + project.getName() + "] already exist!");
-            return;
+        List<Project> projects = sampleDatasetLoader.getProjects();
+        projectLoop: for (Project project : projects) {
+            if (rest.getForEntity(serviceUrl + "/app/projects", String.class).getBody().contains(project.getName())) {
+                log.info("Project [" + project.getName() + "] already exist!");
+                break projectLoop;
+            }
+            String projectId = project.getId();
+            post(rest, serviceUrl + "/app/projects/" + projectId, new ProjRequest(project.getName()));
+
+            log.info("\nStarting to create schema for project [" + projectId + "]\n" +
+                    "  [" + project.getSubjects().size() + "] subjects\n" +
+                    "  [" + project.getBadges().size() + "] badges");
+            String projectUrl = serviceUrl + "/admin/projects/" + projectId;
+            addSubjects(project, rest, projectUrl);
+            addBadges(project, rest, projectUrl);
+            reportSkills(rest, project);
+
+            log.info("Project [" + projectId + "] was created!");
         }
-        String projectId = project.getId();
-        post(rest, serviceUrl + "/app/projects/" + projectId, new ProjRequest(project.getName()));
-
-        log.info("\nStarting to create schema for project [" + projectId + "]\n" +
-                "  [" + project.getSubjects().size() + "] subjects\n" +
-                "  [" + project.getBadges().size() + "] badges");
-        String projectUrl = serviceUrl + "/admin/projects/" + projectId;
-        addSubjects(project, rest, projectUrl);
-        addBadges(project, rest, projectUrl);
-        reportSkills(rest, project);
-
-        log.info("Project [" + projectId + "] was created!");
     }
 
     private boolean doesUserExist() {
@@ -105,16 +105,16 @@ public class InitSkillServiceWithData {
 
     private void addSubjects(Project project, RestTemplate rest, String projectUrl) {
         for (Subject subject : project.getSubjects()) {
-            log.info("\nCreating [" + subject.getName() + "] subject with [" + subject.getMovies().size() + "] skills");
+            log.info("\nCreating [" + subject.getName() + "] subject with [" + subject.getSkills().size() + "] skills");
             String subjectUrl = projectUrl + "/subjects/" + subject.getId();
             post(rest, subjectUrl, new SubjRequest(subject.getName(), "", subject.getIconClass()));
 
-            for (Movie movie : subject.getMovies()) {
-                String skillUrl = subjectUrl + "/skills/" + movie.getId();
+            for (Skill skill : subject.getSkills()) {
+                String skillUrl = subjectUrl + "/skills/" + skill.getId();
                 SkillRequest skillRequest = new SkillRequest();
-                skillRequest.setName(movie.getTitle());
-                skillRequest.setDescription(buildDescription(movie));
-                skillRequest.setHelpUrl(movie.getHomePage());
+                skillRequest.setName(skill.getName());
+                skillRequest.setDescription(skill.getDescription());
+                skillRequest.setHelpUrl(skill.getHelpUrl());
                 post(rest, skillUrl, skillRequest);
             }
             log.info("\nCompleted [" + subject.getName() + "] subject");
@@ -139,8 +139,8 @@ public class InitSkillServiceWithData {
         int numUsers = usersAndAchievementPercent.length;
         List<String> skillIds = new ArrayList<>();
         for (Subject subject : project.getSubjects()) {
-            for (Movie movie : subject.getMovies()) {
-                skillIds.add(movie.getId());
+            for (Skill skill : subject.getSkills()) {
+                skillIds.add(skill.getId());
             }
         }
         Random random = new Random();
@@ -164,47 +164,6 @@ public class InitSkillServiceWithData {
                 }
             }
         }
-    }
-
-    private String buildDescription(Movie movie) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(movie.getOverview());
-        if (!StringUtils.isEmpty(movie.getTagline())) {
-            builder.append("\n\n> " + movie.getTagline());
-        }
-
-        if (movie.getReleaseDate() != null) {
-            builder.append("\n\n**Release Date:** ");
-            builder.append(simpleDateFormat.format(movie.getReleaseDate()));
-        }
-
-        if (movie.getRuntime() != null) {
-            int hours = (int) (movie.getRuntime() / 60);
-            int minutes = (int) (movie.getRuntime() - (hours * 60));
-            builder.append("\n\n**Length:** ");
-            if (hours > 0) {
-                builder.append(hours + " hour" + (hours > 1 ? "s" : "") + " ");
-            }
-            if (minutes > 0) {
-                builder.append(minutes + " minute" + (minutes > 1 ? "s" : ""));
-            }
-        }
-
-        if (movie.getRevenue() != null) {
-            builder.append("\n\n**Revenue:** ");
-            String res;
-            if (movie.getRevenue() > 1000000) {
-                String amount = new DecimalFormat("#.##").format(movie.getRevenue() / 1000000);
-                builder.append("$" + amount + " million");
-            } else if (movie.getRevenue() > 1000) {
-                String amount = new DecimalFormat("#.##").format(movie.getRevenue() / 1000);
-                builder.append("$" + amount + "k");
-            } else {
-                builder.append("$" + movie.getRevenue());
-            }
-
-        }
-        return builder.toString();
     }
 
     private void post(RestTemplate restTemplate, String url, Object data) {
@@ -248,7 +207,7 @@ public class InitSkillServiceWithData {
             char[] pwdArray = System.getProperty("javax.net.ssl.keyStorePassword").toCharArray();
             KeyStore ks = KeyStore.getInstance(keystoreType);
             ks.load(new FileInputStream(keystore), pwdArray);
-            dn = ((X509Certificate) ks.getCertificate(ks.aliases().nextElement())).getIssuerX500Principal().getName();
+            dn = ((X509Certificate) ks.getCertificate(ks.aliases().nextElement())).getSubjectX500Principal().getName();
         } catch (Exception e) {
             log.error("Unable to extract DN from certificate", e);
         }

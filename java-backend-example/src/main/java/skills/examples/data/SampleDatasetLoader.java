@@ -15,6 +15,7 @@
  */
 package skills.examples.data;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -22,18 +23,19 @@ import org.springframework.stereotype.Component;
 import skills.examples.data.model.Project;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class SampleDatasetLoader {
 
-    @Value("classpath:movies.json")
+    @Value("classpath:projects.json")
     Resource resourceFile;
 
-    public Project getProject() {
+    public List<Project> getProjects() {
         ObjectMapper jsonMapper = new ObjectMapper();
         try {
-            Project project = jsonMapper.readValue(resourceFile.getURL(), Project.class);
-            return project;
+            List<Project> projects = jsonMapper.readValue(resourceFile.getURL(), new TypeReference<List<Project>>() {});
+            return projects;
         } catch (IOException e) {
             throw new RuntimeException("Failed to load sample data", e);
         }
