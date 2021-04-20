@@ -19,6 +19,21 @@ public class Skill {
     private String id;
     private String name;
     private String description;
+    // optional - valid values are "Approval" or "HonorSystem"
+    private String selfReportingType;
+
+    public String getSelfReportingType() {
+        return selfReportingType;
+    }
+
+    public void setSelfReportingType(String selfReportingType) {
+        this.selfReportingType = selfReportingType;
+    }
+
+    public Boolean isSelfReporting() {
+        return selfReportingType != null && (selfReportingType.equals("Approval") || selfReportingType.equals("HonorSystem"));
+    }
+
 
     public String getId() {
         return id;

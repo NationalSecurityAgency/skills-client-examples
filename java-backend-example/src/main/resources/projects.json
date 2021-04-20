@@ -258,7 +258,8 @@
       "id" : "Minions",
       "name" : "Minions",
       "description" : "Minions Stuart, Kevin and Bob are recruited by Scarlet Overkill, a super-villain who, alongside her inventor husband Herb, hatches a plot to take over the world.\n\n> Before Gru, they had a history of bad bosses\n\n**Release Date:** June 17, 2015\n\n**Length:** 1 hour 31 minutes\n\n**Revenue:** $1156 million",
-      "helpUrl" : "http://www.minionsmovie.com/"
+      "helpUrl" : "http://www.minionsmovie.com/",
+      "selfReportingType" : "Approval"
     }, {
       "id" : "ForrestGump",
       "name" : "Forrest Gump",
@@ -313,7 +314,8 @@
       "id" : "MonstersInc",
       "name" : "Monsters, Inc.",
       "description" : "James Sullivan and Mike Wazowski are monsters, they earn their living scaring children and are the best in the business... even though they're more afraid of the children than they are of them. When a child accidentally enters their world, James and Mike suddenly find that kids are not to be afraid of and they uncover a conspiracy that could threaten all children across the world.\n\n> We Scare Because We Care.\n\n**Release Date:** November 1, 2001\n\n**Length:** 1 hour 32 minutes\n\n**Revenue:** $562 million",
-      "helpUrl" : "http://movies.disney.com/monsters-inc"
+      "helpUrl" : "http://movies.disney.com/monsters-inc",
+      "selfReportingType" : "HonorSystem"
     }, {
       "id" : "Zootopia",
       "name" : "Zootopia",
@@ -623,7 +625,8 @@
       "id" : "BeautyandtheBeast",
       "name" : "Beauty and the Beast",
       "description" : "A live-action adaptation of Disney's version of the classic 'Beauty and the Beast' tale of a cursed prince and a beautiful young woman who helps him break the spell.\n\n> Be our guest.\n\n**Release Date:** March 16, 2017\n\n**Length:** 2 hours 9 minutes\n\n**Revenue:** $1262 million",
-      "helpUrl" : "http://movies.disney.com/beauty-and-the-beast-2017"
+      "helpUrl" : "http://movies.disney.com/beauty-and-the-beast-2017",
+      "selfReportingType" : "HonorSystem"
     }, {
       "id" : "FantasticBeastsandWheretoFindThem",
       "name" : "Fantastic Beasts and Where to Find Them",
@@ -653,7 +656,8 @@
       "id" : "FindingNemo",
       "name" : "Finding Nemo",
       "description" : "Nemo, an adventurous young clownfish, is unexpectedly taken from his Great Barrier Reef home to a dentist's office aquarium. It's up to his worrisome father Marlin and a friendly but forgetful fish Dory to bring Nemo home -- meeting vegetarian sharks, surfer dude turtles, hypnotic jellyfish, hungry seagulls, and more along the way.\n\n> There are 3.7 trillion fish in the ocean. They're looking for one.\n\n**Release Date:** May 30, 2003\n\n**Length:** 1 hour 40 minutes\n\n**Revenue:** $940 million",
-      "helpUrl" : "http://movies.disney.com/finding-nemo"
+      "helpUrl" : "http://movies.disney.com/finding-nemo",
+      "selfReportingType" : "Approval"
     }, {
       "id" : "HarryPotterandtheDeathlyHallowsPart2",
       "name" : "Harry Potter and the Deathly Hallows: Part 2",
@@ -1313,7 +1317,8 @@
     }, {
       "id" : "Lupin",
       "name" : "Lupin",
-      "description" : "Inspired by the adventures of Arsène Lupin, gentleman thief Assane Diop sets out to avenge his father for an injustice inflicted by a wealthy family.\n\n**Release Year:** 2021\n\n**Duration:** 1 Season\n\n**Rating:** TV-MA\n\n**Cast:** Omar Sy, Ludivine Sagnier, Clotilde Hesme, Nicole Garcia, Hervé Pierre, Soufiane Guerrab, Antoine Gouy, Fargass Assandé, Vincent Londez, Shirine Boutella"
+      "description" : "Inspired by the adventures of Arsène Lupin, gentleman thief Assane Diop sets out to avenge his father for an injustice inflicted by a wealthy family.\n\n**Release Year:** 2021\n\n**Duration:** 1 Season\n\n**Rating:** TV-MA\n\n**Cast:** Omar Sy, Ludivine Sagnier, Clotilde Hesme, Nicole Garcia, Hervé Pierre, Soufiane Guerrab, Antoine Gouy, Fargass Assandé, Vincent Londez, Shirine Boutella",
+      "selfReportingType" : "Approval"
     }, {
       "id" : "CobraKai",
       "name" : "Cobra Kai",
@@ -1369,7 +1374,8 @@
     }, {
       "id" : "TheWalkingDead",
       "name" : "The Walking Dead",
-      "description" : "In the wake of a zombie apocalypse, survivors hold on to the hope of humanity by banding together to wage a fight for their own survival.\n\n**Release Year:** 2018\n\n**Duration:** 9 Seasons\n\n**Rating:** TV-MA\n\n**Cast:** Andrew Lincoln, Steven Yeun, Norman Reedus, Chandler Riggs, Melissa McBride, Lauren Cohan, Danai Gurira, Alanna Masterson, Sonequa Martin-Green, Josh McDermitt, Christian Serratos, Seth Gilliam, Ross Marquand, Lennie James, Emily Kinney, Jon Bernthal"
+      "description" : "In the wake of a zombie apocalypse, survivors hold on to the hope of humanity by banding together to wage a fight for their own survival.\n\n**Release Year:** 2018\n\n**Duration:** 9 Seasons\n\n**Rating:** TV-MA\n\n**Cast:** Andrew Lincoln, Steven Yeun, Norman Reedus, Chandler Riggs, Melissa McBride, Lauren Cohan, Danai Gurira, Alanna Masterson, Sonequa Martin-Green, Josh McDermitt, Christian Serratos, Seth Gilliam, Ross Marquand, Lennie James, Emily Kinney, Jon Bernthal",
+      "selfReportingType" : "Approval"
     }, {
       "id" : "MarcoPolo",
       "name" : "Marco Polo",
@@ -1446,7 +1452,8 @@
     }, {
       "id" : "Scream",
       "name" : "Scream",
-      "description" : "In this new TV series sequel to the classic horror franchise, a cyberbullying incident in Lakewood leads to a murder with chilling echoes of the past.\n\n**Release Year:** 2019\n\n**Duration:** 3 Seasons\n\n**Rating:** TV-MA\n\n**Cast:** Willa Fitzgerald, Bex Taylor-Klaus, John Karna, Amadeus Serafini, Connor Weil, Carlson Young, Jason Wiles, Tracy Middendorf, Tom Maden, Bobby Campo, Santiago Segura, Mike Vaughn"
+      "description" : "In this new TV series sequel to the classic horror franchise, a cyberbullying incident in Lakewood leads to a murder with chilling echoes of the past.\n\n**Release Year:** 2019\n\n**Duration:** 3 Seasons\n\n**Rating:** TV-MA\n\n**Cast:** Willa Fitzgerald, Bex Taylor-Klaus, John Karna, Amadeus Serafini, Connor Weil, Carlson Young, Jason Wiles, Tracy Middendorf, Tom Maden, Bobby Campo, Santiago Segura, Mike Vaughn",
+      "selfReportingType" : "HonorSystem"
     }, {
       "id" : "ChillingAdventuresofSabrina",
       "name" : "Chilling Adventures of Sabrina",
@@ -1490,7 +1497,8 @@
     }, {
       "id" : "StrangerThings",
       "name" : "Stranger Things",
-      "description" : "When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.\n\n**Release Year:** 2019\n\n**Duration:** 3 Seasons\n\n**Rating:** TV-14\n\n**Cast:** Winona Ryder, David Harbour, Finn Wolfhard, Millie Bobby Brown, Gaten Matarazzo, Caleb McLaughlin, Natalia Dyer, Charlie Heaton, Cara Buono, Noah Schnapp, Matthew Modine, Joe Keery, Dacre Montgomery, Sadie Sink, Paul Reiser, Sean Astin"
+      "description" : "When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.\n\n**Release Year:** 2019\n\n**Duration:** 3 Seasons\n\n**Rating:** TV-14\n\n**Cast:** Winona Ryder, David Harbour, Finn Wolfhard, Millie Bobby Brown, Gaten Matarazzo, Caleb McLaughlin, Natalia Dyer, Charlie Heaton, Cara Buono, Noah Schnapp, Matthew Modine, Joe Keery, Dacre Montgomery, Sadie Sink, Paul Reiser, Sean Astin",
+      "selfReportingType" : "HonorSystem"
     }, {
       "id" : "VWars",
       "name" : "V Wars",
@@ -1805,7 +1813,8 @@
     }, {
       "id" : "ForgedinFire",
       "name" : "Forged in Fire",
-      "description" : "Bladesmiths vie for a cash prize by forging the best metal weapons from the pages of history in this competition series featuring expert judges.\n\n**Release Year:** 2019\n\n**Duration:** 1 Season\n\n**Rating:** TV-14\n\n**Cast:** Wil Willis"
+      "description" : "Bladesmiths vie for a cash prize by forging the best metal weapons from the pages of history in this competition series featuring expert judges.\n\n**Release Year:** 2019\n\n**Duration:** 1 Season\n\n**Rating:** TV-14\n\n**Cast:** Wil Willis",
+      "selfReportingType" : "Approval"
     }, {
       "id" : "MexicoDisea",
       "name" : "Mexico Diseña",

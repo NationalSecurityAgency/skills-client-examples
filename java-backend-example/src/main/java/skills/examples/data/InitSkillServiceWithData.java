@@ -131,6 +131,9 @@ public class InitSkillServiceWithData {
                 skillRequest.setName(skill.getName());
                 skillRequest.setDescription(skill.getDescription());
                 skillRequest.setHelpUrl(skill.getHelpUrl());
+                if (skill.isSelfReporting()) {
+                    skillRequest.setSelfReportingType(skill.getSelfReportingType());
+                }
                 post(rest, skillUrl, skillRequest);
             }
             log.info("\nCompleted [" + subject.getName() + "] subject");
@@ -223,7 +226,7 @@ public class InitSkillServiceWithData {
             restTemplate.put(url, request);
             log.info("\n-----------------\nCreated User:\n  email=[" + userInfoRequest.getEmail() + "]\n  password=[" + userInfoRequest.getPassword() + "]\n----------------");
         } else {
-            log.info("User [" + skillsConfig.getUsername() + "] already exist");
+            log.info("User [" + skillsConfig.getUsername() + "] already exists");
         }
     }
 
