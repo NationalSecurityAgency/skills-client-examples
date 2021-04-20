@@ -36,8 +36,8 @@ import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -54,9 +54,6 @@ public class InitSkillServiceWithData {
     private SampleDatasetLoader sampleDatasetLoader;
 
     private static final Logger log = LoggerFactory.getLogger(InitSkillServiceWithData.class);
-
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMMM d, yyyy");
-
 
     @PostConstruct
     void load() throws Exception {
@@ -85,10 +82,26 @@ public class InitSkillServiceWithData {
             String projectUrl = serviceUrl + "/admin/projects/" + projectId;
             addSubjects(project, rest, projectUrl);
             addBadges(project, rest, projectUrl);
+
+            // pin the project on the root user's admin view
+            post(rest, serviceUrl + "/root/pin/"+projectId);
+
             reportSkills(rest, project);
 
             log.info("Project [" + projectId + "] was created!");
         }
+
+        assignCrossProjectDependency(rest, "shows", "MarvelsAgentsofSHIELD", "movies", "TheAvengers");
+        assignSeriesDependencies(rest, "movies", new ArrayList<>(Arrays.asList(
+                "HarryPotterandthePhilosophersStone",
+                "HarryPotterandtheChamberofSecrets",
+                "HarryPotterandthePrisonerofAzkaban",
+                "HarryPotterandtheGobletofFire",
+                "HarryPotterandtheOrderofthePhoenix",
+                "HarryPotterandtheHalfBloodPrince",
+                "HarryPotterandtheDeathlyHallowsPart1",
+                "HarryPotterandtheDeathlyHallowsPart2"))
+        );
     }
 
     private boolean doesUserExist() {
@@ -134,6 +147,28 @@ public class InitSkillServiceWithData {
         }
     }
 
+    private void assignSeriesDependencies(RestTemplate rest, String projectId, List<String> sortedSkillIds) {
+        String toSkillId = sortedSkillIds.remove(0);
+        for (String fromSkillId : sortedSkillIds) {
+            assignDependency(rest, projectId, fromSkillId, toSkillId);
+            toSkillId = fromSkillId;
+        }
+    }
+
+    private void assignDependency(RestTemplate rest, String projectId, String fromSkillId, String toSkillId) {
+        String serviceUrl = skillsConfig.getServiceUrl();
+        post(rest, serviceUrl + "admin/projects/"+projectId+"/skills/"+fromSkillId+"/dependency/"+toSkillId);
+        log.info("Assigned project ("+projectId+") dependency: "+fromSkillId+" -> "+toSkillId);
+    }
+
+    private void assignCrossProjectDependency(RestTemplate rest, String fromProjId, String fromSkillId, String toProjId, String toSkillId) {
+        String serviceUrl = skillsConfig.getServiceUrl();
+        // share skill with other project and then assign cross project dependency
+        post(rest, serviceUrl + "/admin/projects/"+fromProjId+"/skills/"+fromSkillId+"/shared/projects/"+toProjId);
+        post(rest, serviceUrl + "/admin/projects/"+toProjId+"/skills/"+toSkillId+"/dependency/projects/"+fromProjId+"/skills/"+fromSkillId);
+        log.info("Assigned cross-project dependency: "+fromProjId+":"+fromSkillId+" -> "+toProjId+":"+toSkillId);
+    }
+
     private void reportSkills(RestTemplate rest, Project project) {
         double[] usersAndAchievementPercent = {.1, .24, .5, .7, .8};
         int numUsers = usersAndAchievementPercent.length;
@@ -164,6 +199,10 @@ public class InitSkillServiceWithData {
                 }
             }
         }
+    }
+
+    private void post(RestTemplate restTemplate, String url) {
+        post(restTemplate, url, null);
     }
 
     private void post(RestTemplate restTemplate, String url, Object data) {
