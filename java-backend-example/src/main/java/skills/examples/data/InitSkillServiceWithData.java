@@ -163,7 +163,7 @@ public class InitSkillServiceWithData {
 
     private void assignDependency(RestTemplate rest, String projectId, String fromSkillId, String toSkillId) {
         String serviceUrl = skillsConfig.getServiceUrl();
-        post(rest, serviceUrl + "admin/projects/"+projectId+"/skills/"+fromSkillId+"/dependency/"+toSkillId);
+        post(rest, serviceUrl + "/admin/projects/"+projectId+"/skills/"+fromSkillId+"/dependency/"+toSkillId);
         log.info("Assigned project ("+projectId+") dependency: "+fromSkillId+" -> "+toSkillId);
     }
 
