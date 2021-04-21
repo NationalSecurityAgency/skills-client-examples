@@ -87,7 +87,7 @@ public class InitSkillServiceWithData {
             if (skillsConfig.getCreateRootAccount()) {
                 post(rest, serviceUrl + "/root/pin/" + projectId);
             }
-            post(rest, serviceUrl + "admin/projects/"+projectId+"/settings/production.mode.enabled", new SettingRequest(projectId, "production.mode.enabled", "true"));
+            post(rest, serviceUrl + "/admin/projects/"+projectId+"/settings/production.mode.enabled", new SettingRequest(projectId, "production.mode.enabled", "true"));
 
             reportSkills(rest, project);
 
