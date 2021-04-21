@@ -32,6 +32,9 @@ public class SkillsConfig {
     @JsonIgnore
     String authMode = "token";
     Boolean createRootAccount = false;
+    Integer numEvents = 2500;
+    Integer numUsers = 34;
+    Integer numDays = 365;
 
     public String getServiceUrl() { return serviceUrl; }
     public String getAuthenticator() { return authenticator; }
@@ -49,6 +52,12 @@ public class SkillsConfig {
     public void setPassword(String password) { this.password = password; }
     public void setAuthMode(String authMode) { this.authMode = authMode; }
     public void setCreateRootAccount(Boolean createRootAccount) { this.createRootAccount = createRootAccount; }
+    public Integer getNumEvents() { return numEvents; }
+    public void setNumEvents(Integer numEvents) { this.numEvents = numEvents; }
+    public Integer getNumUsers() { return numUsers; }
+    public void setNumUsers(Integer numUsers) { this.numUsers = numUsers; }
+    public Integer getNumDays() { return numDays; }
+    public void setNumDays(Integer numDays) { this.numDays = numDays; }
 
     @Override
     public String toString() {
@@ -59,6 +68,9 @@ public class SkillsConfig {
                 .append("password", password)
                 .append("authMode", authMode)
                 .append("createRootAccount", createRootAccount)
+                .append("numEvents", numEvents)
+                .append("numUsers", numUsers)
+                .append("numDays", numDays)
                 .toString();
     }
 }

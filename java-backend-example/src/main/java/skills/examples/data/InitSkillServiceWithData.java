@@ -176,34 +176,39 @@ public class InitSkillServiceWithData {
     }
 
     private void reportSkills(RestTemplate rest, Project project) {
-        double[] usersAndAchievementPercent = {.1, .24, .5, .7, .8};
-        int numUsers = usersAndAchievementPercent.length;
+        int numEvents = skillsConfig.getNumEvents();
+        int numUsers = skillsConfig.getNumUsers();
+        int numDays = skillsConfig.getNumDays();
+        Random random = new Random();
         List<String> skillIds = new ArrayList<>();
         for (Subject subject : project.getSubjects()) {
             for (Skill skill : subject.getSkills()) {
                 skillIds.add(skill.getId());
             }
         }
-        Random random = new Random();
+        List<String> userIds = new ArrayList<>();
         for (int i = 0; i < numUsers; i++) {
-            String userId = "User" + i;
-            double percentToAchieve = usersAndAchievementPercent[i];
-            int eventsToSend = (int) (skillIds.size() * percentToAchieve) * 3;
-            int numOfDays = percentToAchieve > .5 ? 46 : 12;
-            log.info("\nReporting skills for user [" + userId + "]\n" +
-                    "   number of events to send = [" + eventsToSend + "]\n" +
-                    "   May take a minute.... Please hold!");
-
-            int numPerDay = (int) (eventsToSend / numOfDays);
-            for (int dayCounter = 0; dayCounter < numOfDays; dayCounter++) {
-                long days = (long) dayCounter * 1000l * 60l * 60l * 24l;
-                long timestamp = System.currentTimeMillis() - days;
-                for (int countSkill = 0; countSkill < numPerDay; countSkill++) {
-                    String skillId = skillIds.get(random.nextInt(skillIds.size()));
-                    String reportUrl = skillsConfig.getServiceUrl() + "/api/projects/" + project.getId() + "/skills/" + skillId;
-                    post(rest, reportUrl, new ReportSkillRequest(userId, timestamp));
-                }
+            userIds.add("User" + i);
+        }
+        userIds.add(getCurrentUserId());
+        List<String> favoriteUserIds = Arrays.asList("User8", "User11", "User22");
+        List<String> leastFavoriteUserIds = Arrays.asList(userIds.remove(3), userIds.remove(29));
+        log.info("\nReporting skills for [" + numUsers + "] users\n" +
+                "   number of events to send = [" + numEvents + "]\n" +
+                "   May take a minute or so.... Please hold!");
+        for (int i = 0; i < numEvents; i++) {
+            int daysAgo = random.nextInt(numDays);
+            long days = (long) daysAgo * 1000l * 60l * 60l * 24l;
+            long timestamp = System.currentTimeMillis() - days;
+            String userId = userIds.get(random.nextInt(userIds.size()));
+            if (i % 250 == 0) {
+                userId = leastFavoriteUserIds.get(random.nextInt(leastFavoriteUserIds.size()));
+            } else if (i % 10 == 0) {
+                userId = favoriteUserIds.get(random.nextInt(favoriteUserIds.size()));
             }
+            String skillId = skillIds.get(random.nextInt(skillIds.size()));
+            String reportUrl = skillsConfig.getServiceUrl() + "/api/projects/" + project.getId() + "/skills/" + skillId;
+            post(rest, reportUrl, new ReportSkillRequest(userId, timestamp));
         }
     }
 
@@ -241,6 +246,14 @@ public class InitSkillServiceWithData {
             HttpEntity request = new HttpEntity<>(userInfoRequest, new HttpHeaders());
             restTemplate.put(url + "/createRootAccount", request);
             log.info("\n-----------------\nCreated Root User:\n  email=[" + userInfoRequest.getEmail() + "]\n  password=[" + userInfoRequest.getPassword() + "]\n----------------");
+        }
+    }
+
+    private String getCurrentUserId() {
+        if (skillsConfig.isPkiMode()) {
+            return getDn();
+        } else {
+            return skillsConfig.getUsername();
         }
     }
 
