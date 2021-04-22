@@ -191,8 +191,8 @@ public class InitSkillServiceWithData {
             userIds.add("User" + i);
         }
         userIds.add(getCurrentUserId());
-        List<String> favoriteUserIds = Arrays.asList("User8", "User11", "User22");
-        List<String> leastFavoriteUserIds = Arrays.asList(userIds.remove(3), userIds.remove(29));
+        List<String> highOutliers = Arrays.asList(userIds.get(random.nextInt(3)), userIds.get(random.nextInt(3)), userIds.get(random.nextInt(3)));
+        List<String> lowOutliers = Arrays.asList(userIds.remove(random.nextInt(2)), userIds.remove(random.nextInt(2)));
         log.info("\nReporting skills for [" + numUsers + "] users\n" +
                 "   number of events to send = [" + numEvents + "]\n" +
                 "   May take a minute or so.... Please hold!");
@@ -201,10 +201,10 @@ public class InitSkillServiceWithData {
             long days = (long) daysAgo * 1000l * 60l * 60l * 24l;
             long timestamp = System.currentTimeMillis() - days;
             String userId = userIds.get(random.nextInt(userIds.size()));
-            if (i % 250 == 0) {
-                userId = leastFavoriteUserIds.get(random.nextInt(leastFavoriteUserIds.size()));
-            } else if (i % 10 == 0) {
-                userId = favoriteUserIds.get(random.nextInt(favoriteUserIds.size()));
+            if (i % 200 == 0) {
+                userId = lowOutliers.get(random.nextInt(lowOutliers.size()));
+            } else if (i % 5 == 0) {
+                userId = highOutliers.get(random.nextInt(highOutliers.size()));
             }
             String skillId = skillIds.get(random.nextInt(skillIds.size()));
             String reportUrl = skillsConfig.getServiceUrl() + "/api/projects/" + project.getId() + "/skills/" + skillId;
