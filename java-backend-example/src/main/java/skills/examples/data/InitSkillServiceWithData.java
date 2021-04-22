@@ -154,7 +154,7 @@ public class InitSkillServiceWithData {
 
         post(rest, serviceUrl + "/supervisor/badges/" + badgeId + "/projects/movies/level/"+level);
         post(rest, serviceUrl + "/supervisor/badges/" + badgeId + "/projects/shows/level/"+level);
-        log.info("\nCreating [" + name + "] badge that requires users to achieve at least level [" + level + "] for both projects");
+        log.info("\nCreating Global Badge [" + name + "] that requires users to achieve at least level [" + level + "] for both projects");
     }
 
     private void addBadges(Project project, RestTemplate rest, String projectUrl) {
