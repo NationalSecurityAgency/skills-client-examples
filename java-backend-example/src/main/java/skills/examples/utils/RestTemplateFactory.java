@@ -16,8 +16,16 @@
 package skills.examples.utils;
 
 import org.apache.http.client.HttpClient;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContexts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -27,12 +35,17 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+
 @Component
 public class RestTemplateFactory {
+    private SkillsConfig skillsConfig;
 
     @Autowired
-    SkillsConfig skillsConfig;
-
+    public RestTemplateFactory(SkillsConfig skillsConfig) {
+        this.skillsConfig = skillsConfig;
+    }
 
     public RestTemplate getTemplateWithAuth() {
         RestTemplate restTemplate = new RestTemplate();
@@ -49,6 +62,29 @@ public class RestTemplateFactory {
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
             ResponseEntity<String> response = restTemplate.postForEntity(skillsConfig.getServiceUrl() + "/performLogin", request, String.class);
             assert response.getStatusCode() == HttpStatus.OK;
+        } else {
+            SSLContext sslContext = SSLContexts.createSystemDefault();
+            HostnameVerifier allowAllHosts = new NoopHostnameVerifier();
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
+                    sslContext,
+                    new String[]{"TLSv1.2"},
+            null,
+                    allowAllHosts);
+
+            PoolingHttpClientConnectionManager poolingHttpClientConnectionManager =
+                    new PoolingHttpClientConnectionManager(RegistryBuilder.<ConnectionSocketFactory>create()
+                            .register("http", PlainConnectionSocketFactory.getSocketFactory())
+                            .register("https", sslConnectionSocketFactory).build());
+            HttpClient httpClient = HttpClients.custom()
+                    .setSSLHostnameVerifier(new NoopHostnameVerifier())
+                    .useSystemProperties()
+                    .setSSLContext(sslContext)
+                    .setConnectionManager(poolingHttpClientConnectionManager)
+                    .build();
+            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+            requestFactory.setHttpClient(httpClient);
+            restTemplate = new RestTemplate(requestFactory);
+
         }
         return restTemplate;
     }

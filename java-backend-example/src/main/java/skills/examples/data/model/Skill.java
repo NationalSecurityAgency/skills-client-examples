@@ -13,29 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package skills.examples.data.serviceRequestModel;
+package skills.examples.data.model;
 
-public class BadgeRequest {
+public class Skill {
+    private String id;
     private String name;
     private String description;
-    private String iconClass;
-    private Boolean enabled;  // applies only to global badges
+    // optional - valid values are "Approval" or "HonorSystem"
+    private String selfReportingType;
 
-    public BadgeRequest() {
-
+    public String getSelfReportingType() {
+        return selfReportingType;
     }
 
-    public BadgeRequest(String name, String description, String iconClass) {
-        this.name = name;
-        this.description = description;
-        this.iconClass = iconClass;
+    public void setSelfReportingType(String selfReportingType) {
+        this.selfReportingType = selfReportingType;
     }
 
-    public BadgeRequest(String name, String description, String iconClass, Boolean enabled) {
-        this.name = name;
-        this.description = description;
-        this.iconClass = iconClass;
-        this.enabled = enabled;
+    public Boolean isSelfReporting() {
+        return selfReportingType != null && (selfReportingType.equals("Approval") || selfReportingType.equals("HonorSystem"));
+    }
+
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -54,15 +59,13 @@ public class BadgeRequest {
         this.description = description;
     }
 
-    public String getIconClass() {
-        return iconClass;
+    public String getHelpUrl() {
+        return helpUrl;
     }
 
-    public void setIconClass(String iconClass) {
-        this.iconClass = iconClass;
+    public void setHelpUrl(String helpUrl) {
+        this.helpUrl = helpUrl;
     }
 
-    public Boolean getEnabled() { return enabled; }
-
-    public void setEnabled(Boolean enabled) { this.enabled = enabled; }
+    private String helpUrl;
 }
