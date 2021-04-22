@@ -105,7 +105,9 @@ public class InitSkillServiceWithData {
                 "HarryPotterandtheDeathlyHallowsPart1",
                 "HarryPotterandtheDeathlyHallowsPart2"))
         );
-        addGlobalBadge(rest, serviceUrl, 2);
+        if (skillsConfig.getCreateRootAccount()) {
+            addGlobalBadge(rest, serviceUrl, 2);
+        }
     }
 
     private boolean doesUserExist(String username) {
