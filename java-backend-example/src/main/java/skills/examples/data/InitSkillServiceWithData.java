@@ -150,7 +150,6 @@ public class InitSkillServiceWithData {
         }
     }
 
-
     private void addGlobalBadge(RestTemplate rest, String serviceUrl, Integer level) {
         String badgeId = "MoviesandShowsExpertBadge";
         String name = "Movie and Show Expert";
