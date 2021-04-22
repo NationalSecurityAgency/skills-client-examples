@@ -129,7 +129,7 @@ public class InitSkillServiceWithData {
             post(rest, subjectUrl, new SubjRequest(subject.getName(), "", subject.getIconClass()));
 
             List<Skill> skills = subject.getSkills();
-            for (int i = 0; i < movies.size(); i++) {
+            for (int i = 0; i < skills.size(); i++) {
                 Skill skill = skills.get(i);
                 String skillUrl = subjectUrl + "/skills/" + skill.getId();
                 SkillRequest skillRequest = new SkillRequest();
