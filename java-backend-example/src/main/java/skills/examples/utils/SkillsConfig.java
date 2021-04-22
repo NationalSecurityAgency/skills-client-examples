@@ -20,6 +20,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 @ConfigurationProperties("skills.service")
 public class SkillsConfig {
@@ -35,6 +38,7 @@ public class SkillsConfig {
     Integer numEvents = 2500;
     Integer numUsers = 34;
     Integer numDays = 365;
+    List<String> additionalRootUsers = new ArrayList<>();  // optional, only applies to non-PKI authMode
 
     public String getServiceUrl() { return serviceUrl; }
     public String getAuthenticator() { return authenticator; }
@@ -58,6 +62,8 @@ public class SkillsConfig {
     public void setNumUsers(Integer numUsers) { this.numUsers = numUsers; }
     public Integer getNumDays() { return numDays; }
     public void setNumDays(Integer numDays) { this.numDays = numDays; }
+    public List<String> getAdditionalRootUsers() { return additionalRootUsers; }
+    public void setAdditionalRootUsers(List<String> additionalRootUsers) { this.additionalRootUsers = additionalRootUsers; }
 
     @Override
     public String toString() {
@@ -68,6 +74,7 @@ public class SkillsConfig {
                 .append("password", password)
                 .append("authMode", authMode)
                 .append("createRootAccount", createRootAccount)
+                .append("additionalRootUsers", additionalRootUsers)
                 .append("numEvents", numEvents)
                 .append("numUsers", numUsers)
                 .append("numDays", numDays)

@@ -70,7 +70,7 @@ public class InitSkillServiceWithData {
         List<Project> projects = sampleDatasetLoader.getProjects();
         projectLoop: for (Project project : projects) {
             if (rest.getForEntity(serviceUrl + "/app/projects", String.class).getBody().contains(project.getName())) {
-                log.info("Project [" + project.getName() + "] already exist!");
+                log.info("Project [" + project.getName() + "] already exists!");
                 break projectLoop;
             }
             String projectId = project.getId();
@@ -105,13 +105,14 @@ public class InitSkillServiceWithData {
                 "HarryPotterandtheDeathlyHallowsPart1",
                 "HarryPotterandtheDeathlyHallowsPart2"))
         );
+        addGlobalBadge(rest, serviceUrl, 2);
     }
 
-    private boolean doesUserExist() {
+    private boolean doesUserExist(String username) {
         try {
             RestTemplate rest = restTemplateFactory.getTemplateWithAuth();
-            ResponseEntity<String> res = rest.getForEntity(skillsConfig.getServiceUrl() + "/app/projects", String.class);
-            return true;
+            ResponseEntity<Boolean> res = rest.getForEntity(skillsConfig.getServiceUrl() + "/userExists/" + username, Boolean.class);
+            return res.getBody();
         } catch (HttpClientErrorException.Unauthorized unauthorizedE) {
             // swallow
         }
@@ -138,6 +139,20 @@ public class InitSkillServiceWithData {
             }
             log.info("\nCompleted [" + subject.getName() + "] subject");
         }
+    }
+
+
+    private void addGlobalBadge(RestTemplate rest, String serviceUrl, Integer level) {
+        String badgeId = "MoviesandShowsExpertBadge";
+        String name = "Movie and Show Expert";
+        String description = "The \"Movies and Shows Expert\" must achieve at least Level "+level+" in both the Movies and Shows projects.";
+        String iconClass = "mi mi-live-tv";
+        String badgeUrl = serviceUrl + "/supervisor/badges/" + badgeId;
+        post(rest, badgeUrl, new BadgeRequest(name, description, iconClass, true));
+
+        post(rest, serviceUrl + "/supervisor/badges/" + badgeId + "/projects/movies/level/"+level);
+        post(rest, serviceUrl + "/supervisor/badges/" + badgeId + "/projects/shows/level/"+level);
+        log.info("\nCreating [" + name + "] badge that requires users to achieve at least level [" + level + "] for both projects");
     }
 
     private void addBadges(Project project, RestTemplate rest, String projectUrl) {
@@ -191,15 +206,13 @@ public class InitSkillServiceWithData {
             userIds.add("User" + i);
         }
         userIds.add(getCurrentUserId());
+        userIds.addAll(skillsConfig.getAdditionalRootUsers());
         List<String> highOutliers = Arrays.asList(userIds.get(random.nextInt(3)), userIds.get(random.nextInt(3)), userIds.get(random.nextInt(3)));
         List<String> lowOutliers = Arrays.asList(userIds.remove(random.nextInt(2)), userIds.remove(random.nextInt(2)));
         log.info("\nReporting skills for [" + numUsers + "] users\n" +
                 "   number of events to send = [" + numEvents + "]\n" +
                 "   May take a minute or so.... Please hold!");
         for (int i = 0; i < numEvents; i++) {
-            int daysAgo = random.nextInt(numDays);
-            long days = (long) daysAgo * 1000l * 60l * 60l * 24l;
-            long timestamp = System.currentTimeMillis() - days;
             String userId = userIds.get(random.nextInt(userIds.size()));
             if (i % 200 == 0) {
                 userId = lowOutliers.get(random.nextInt(lowOutliers.size()));
@@ -208,8 +221,32 @@ public class InitSkillServiceWithData {
             }
             String skillId = skillIds.get(random.nextInt(skillIds.size()));
             String reportUrl = skillsConfig.getServiceUrl() + "/api/projects/" + project.getId() + "/skills/" + skillId;
-            post(rest, reportUrl, new ReportSkillRequest(userId, timestamp));
+            post(rest, reportUrl, new ReportSkillRequest(userId, getRandomTimestamp(numDays, random)));
         }
+
+        for (String userId : highOutliers) {
+            // attempt to report a few invalid skillId's
+            String reportUrl = skillsConfig.getServiceUrl() + "/api/projects/" + project.getId() + "/skills/";
+            try {
+                post(rest, reportUrl+"invalidSkillId", new ReportSkillRequest(userId, getRandomTimestamp(numDays, random)));
+            } catch (Exception e) {
+                // ignore
+            }
+
+            // overachieve on a few skills
+            for (int i = 0; i < 3; i++) {
+                String skillId = skillIds.get(i);
+                for (int j = 0; j < 10; j++) {
+                    post(rest, reportUrl+skillId, new ReportSkillRequest(userId, getRandomTimestamp(numDays, random)));
+                }
+            }
+        }
+    }
+
+    private Long getRandomTimestamp(Integer numDays, Random random) {
+        int daysAgo = random.nextInt(numDays);
+        long days = (long) daysAgo * 1000l * 60l * 60l * 24l;
+        return System.currentTimeMillis() - days;
     }
 
     private void post(RestTemplate restTemplate, String url) {
@@ -224,14 +261,18 @@ public class InitSkillServiceWithData {
     }
 
     private void createUser(String url) {
-        if (!doesUserExist()) {
+        createUser(url, skillsConfig.getUsername());
+    }
+
+    private void createUser(String url, String username) {
+        if (!doesUserExist(username)) {
             RestTemplate restTemplate = new RestTemplate();
-            UserInfoRequest userInfoRequest = new UserInfoRequest("Bill", "Gosling", skillsConfig.getUsername(), skillsConfig.getPassword());
+            UserInfoRequest userInfoRequest = new UserInfoRequest("Bill", "Gosling", username, skillsConfig.getPassword());
             HttpEntity request = new HttpEntity<>(userInfoRequest, new HttpHeaders());
             restTemplate.put(url, request);
-            log.info("\n-----------------\nCreated User:\n  email=[" + userInfoRequest.getEmail() + "]\n  password=[" + userInfoRequest.getPassword() + "]\n----------------");
+            log.info("\n-----------------\nCreated User:\n  email=[" + username + "]\n  password=[" + userInfoRequest.getPassword() + "]\n----------------");
         } else {
-            log.info("User [" + skillsConfig.getUsername() + "] already exists");
+            log.info("User [" + username + "] already exists");
         }
     }
 
@@ -242,10 +283,24 @@ public class InitSkillServiceWithData {
             restTemplate.put(url + "/grantFirstRoot", null);
             log.info("\n-----------------\nCreated Root User:\n  DN=[" + getDn() + "]\n----------------");
         } else {
+
+            // create (optional) additional root users
+            for (String additionalUser : skillsConfig.getAdditionalRootUsers()) {
+                createUser(skillsConfig.getServiceUrl() + "/createAccount", additionalUser);
+            }
+
+            restTemplate.getForObject(url + "/logout", String.class);
             UserInfoRequest userInfoRequest = new UserInfoRequest("Bill", "Gosling", skillsConfig.getUsername(), skillsConfig.getPassword());
             HttpEntity request = new HttpEntity<>(userInfoRequest, new HttpHeaders());
             restTemplate.put(url + "/createRootAccount", request);
             log.info("\n-----------------\nCreated Root User:\n  email=[" + userInfoRequest.getEmail() + "]\n  password=[" + userInfoRequest.getPassword() + "]\n----------------");
+
+            // grand root to additional root users
+            restTemplate = restTemplateFactory.getTemplateWithAuth();
+            for (String additionalUser : skillsConfig.getAdditionalRootUsers()) {
+                restTemplate.put(url + "/root/addRoot/"+additionalUser, null);
+                log.info("\n-----------------\nCreated Additional Root User:\n  email=[" + additionalUser + "]\n  password=[" + userInfoRequest.getPassword() + "]\n----------------");
+            }
         }
     }
 

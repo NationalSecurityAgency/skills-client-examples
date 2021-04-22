@@ -19,6 +19,7 @@ public class BadgeRequest {
     private String name;
     private String description;
     private String iconClass;
+    private Boolean enabled;  // applies only to global badges
 
     public BadgeRequest() {
 
@@ -28,6 +29,13 @@ public class BadgeRequest {
         this.name = name;
         this.description = description;
         this.iconClass = iconClass;
+    }
+
+    public BadgeRequest(String name, String description, String iconClass, Boolean enabled) {
+        this.name = name;
+        this.description = description;
+        this.iconClass = iconClass;
+        this.enabled = enabled;
     }
 
     public String getName() {
@@ -53,4 +61,8 @@ public class BadgeRequest {
     public void setIconClass(String iconClass) {
         this.iconClass = iconClass;
     }
+
+    public Boolean getEnabled() { return enabled; }
+
+    public void setEnabled(Boolean enabled) { this.enabled = enabled; }
 }
