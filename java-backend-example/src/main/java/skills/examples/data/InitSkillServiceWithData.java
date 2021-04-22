@@ -128,7 +128,9 @@ public class InitSkillServiceWithData {
             String subjectUrl = projectUrl + "/subjects/" + subject.getId();
             post(rest, subjectUrl, new SubjRequest(subject.getName(), "", subject.getIconClass()));
 
-            for (Skill skill : subject.getSkills()) {
+            List<Skill> skills = subject.getSkills();
+            for (int i = 0; i < movies.size(); i++) {
+                Skill skill = skills.get(i);
                 String skillUrl = subjectUrl + "/skills/" + skill.getId();
                 SkillRequest skillRequest = new SkillRequest();
                 skillRequest.setName(skill.getName());
@@ -136,6 +138,11 @@ public class InitSkillServiceWithData {
                 skillRequest.setHelpUrl(skill.getHelpUrl());
                 if (skill.isSelfReporting()) {
                     skillRequest.setSelfReportingType(skill.getSelfReportingType());
+                }
+                if (i % 3 == 0) {
+                    skillRequest.setNumPerformToCompletion(3);
+                } else if (i % 2 == 0) {
+                    skillRequest.setNumPerformToCompletion(2);
                 }
                 post(rest, skillUrl, skillRequest);
             }
