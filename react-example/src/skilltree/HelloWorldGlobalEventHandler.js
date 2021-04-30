@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {SkillsReporter} from '@skilltree/skills-client-react';
 
 const HelloWorldGlobalEventHandler = () => {
     const [res, setRes] = useState('');
 
-    React.useEffect(()=>{
+    .useEffect(()=>{
         // just so we can always see the response
         SkillsReporter.configure({
             notifyIfSkillNotApplied: true,
