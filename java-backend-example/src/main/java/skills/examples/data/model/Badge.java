@@ -23,6 +23,8 @@ public class Badge {
     private String description;
     private String iconClass;
     private List<String> skillIds;
+    private boolean gem = false;
+    private boolean shouldAdminAchieve = false;
 
     public String getId() {
         return id;
@@ -64,4 +66,7 @@ public class Badge {
         this.skillIds = skillIds;
     }
 
+    public boolean isGem() { return gem; }
+
+    public boolean isShouldAdminAchieve() { return shouldAdminAchieve; }
 }

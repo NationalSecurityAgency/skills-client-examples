@@ -258,8 +258,7 @@
       "id" : "Minions",
       "name" : "Minions",
       "description" : "Minions Stuart, Kevin and Bob are recruited by Scarlet Overkill, a super-villain who, alongside her inventor husband Herb, hatches a plot to take over the world.\n\n> Before Gru, they had a history of bad bosses\n\n**Release Date:** June 17, 2015\n\n**Length:** 1 hour 31 minutes\n\n**Revenue:** $1156 million",
-      "helpUrl" : "http://www.minionsmovie.com/",
-      "selfReportingType" : "Approval"
+      "helpUrl" : "http://www.minionsmovie.com/"
     }, {
       "id" : "ForrestGump",
       "name" : "Forrest Gump",
@@ -269,7 +268,8 @@
       "id" : "Ted2",
       "name" : "Ted 2",
       "description" : "Newlywed couple Ted and Tami-Lynn want to have a baby, but in order to qualify to be a parent, Ted will have to prove he's a person in a court of law.\n\n> Ted is Coming, Again.\n\n**Release Date:** June 25, 2015\n\n**Length:** 1 hour 55 minutes\n\n**Revenue:** $217 million",
-      "helpUrl" : ""
+      "helpUrl" : "",
+      "selfReportingType" : "Approval"
     }, {
       "id" : "LifeIsBeautiful",
       "name" : "Life Is Beautiful",
@@ -284,7 +284,8 @@
       "id" : "DilwaleDulhaniaLeJayenge",
       "name" : "Dilwale Dulhania Le Jayenge",
       "description" : "Raj is a rich, carefree, happy-go-lucky second generation NRI. Simran is the daughter of Chaudhary Baldev Singh, who in spite of being an NRI is very strict about adherence to Indian values. Simran has left for India to be married to her childhood fiancé. Raj leaves for India with a mission at his hands, to claim his lady love under the noses of her whole family. Thus begins a saga.\n\n> Come... Fall In Love\n\n**Release Date:** October 20, 1995\n\n**Length:** 3 hours 10 minutes\n\n**Revenue:** $100 million",
-      "helpUrl" : ""
+      "helpUrl" : "",
+      "selfReportingType" : "Approval"
     }, {
       "id" : "TheEmojiMovie",
       "name" : "The Emoji Movie",
@@ -294,7 +295,8 @@
       "id" : "TheHouse",
       "name" : "The House",
       "description" : "When Scott and Kate Johansen’s daughter gets into the college of her dreams it’s cause for celebration. That is, until Scott and Kate learn that the scholarship they were counting on didn’t come through, and they’re now on the hook for tuition they can’t begin to afford. With the help of their friend and neighbor Frank also in need of a major payday they decide to open an illegal casino in his suburban house, risking everything together on a Vegas-style bacchanal where money flows, inhibitions are checked at the door, and all bets are off.\n\n> If you can't beat the house, be... The House\n\n**Release Date:** June 29, 2017\n\n**Length:** 1 hour 28 minutes\n\n**Revenue:** $0",
-      "helpUrl" : ""
+      "helpUrl" : "",
+      "selfReportingType" : "Approval"
     }, {
       "id" : "KingsmanTheSecretService",
       "name" : "Kingsman: The Secret Service",
@@ -1279,17 +1281,22 @@
     "id" : "DespicableMeCollection",
     "name" : "Despicable Me Collection",
     "iconClass" : "fas fa-carrot",
-    "skillIds" : [ "DespicableMe3", "Minions", "DespicableMe2", "DespicableMe" ]
+    "shouldAdminAchieve" : true,
+    "skillIds" : [ "DespicableMe3", "Minions", "DespicableMe2", "DespicableMe" ],
+    "description": "Despicable Me is a computer-animated media franchise centering on Gru, a reformed super-villain (who later becomes a father, husband, and secret agent), and his yellow-colored Minions. It is produced by Illumination and distributed by its parent company Universal Pictures."
   }, {
     "id" : "TheTwilightCollection",
     "name" : "The Twilight Collection",
     "iconClass" : "fas fa-ghost",
-    "skillIds" : [ "TheTwilightSagaEclipse", "Twilight", "TheTwilightSagaNewMoon", "TheTwilightSagaBreakingDawnPart2" ]
+    "skillIds" : [ "TheTwilightSagaEclipse", "Twilight", "TheTwilightSagaNewMoon", "TheTwilightSagaBreakingDawnPart2" ],
+    "description": "The Twilight Saga is a series of five vampire-themed romance fantasy films from Summit Entertainment based on the four novels published by author Stephenie Meyer. The films star Kristen Stewart, Robert Pattinson and Taylor Lautner. The series has grossed over $3.4 billion worldwide. The first installment, Twilight, was released on November 21, 2008. The second installment, New Moon, followed on November 20, 2009, breaking box office records as the biggest midnight screening and opening day in history, grossing an estimated $72.7 million. The third installment, Eclipse, was released on June 30, 2010, and was the first of the series to be released in IMAX."
   }, {
     "id" : "HarryPotterCollection",
     "name" : "Harry Potter Collection",
     "iconClass" : "fas fa-quidditch",
-    "skillIds" : [ "HarryPotterandthePhilosophersStone", "HarryPotterandtheChamberofSecrets", "HarryPotterandthePrisonerofAzkaban", "HarryPotterandtheDeathlyHallowsPart2", "HarryPotterandtheGobletofFire", "HarryPotterandtheDeathlyHallowsPart1", "HarryPotterandtheOrderofthePhoenix", "HarryPotterandtheHalfBloodPrince" ]
+    "shouldAdminAchieve" : true,
+    "skillIds" : [ "HarryPotterandthePhilosophersStone", "HarryPotterandtheChamberofSecrets", "HarryPotterandthePrisonerofAzkaban", "HarryPotterandtheDeathlyHallowsPart2", "HarryPotterandtheGobletofFire", "HarryPotterandtheDeathlyHallowsPart1", "HarryPotterandtheOrderofthePhoenix", "HarryPotterandtheHalfBloodPrince" ],
+    "description": "Harry Potter is a film series based on the eponymous novels by J. K. Rowling. The series is distributed by Warner Bros. and consists of eight fantasy films, beginning with Harry Potter and the Philosopher's Stone (2001) and culminating with Harry Potter and the Deathly Hallows – Part 2 (2011). A spin-off prequel series that will consist of five films started with Fantastic Beasts and Where to Find Them (2016), marking the beginning of the Wizarding World shared media franchise."
   } ],
   "name" : "Movies"
 }, {
@@ -1833,6 +1840,20 @@
       "description" : "Brooke Burns hosts this game show in which three contestants square off to answer fast-paced questions against \"the Beast,\" a trivia know-it-all.\n\n**Release Year:** 2015\n\n**Duration:** 2 Seasons\n\n**Rating:** TV-PG\n\n**Cast:** Brooke Burns, Mark Labbett"
     } ]
   } ],
-  "badges" : [ ],
+  "badges" : [ {
+    "id" : "DramaQueen",
+    "name" : "Drama Queen",
+    "iconClass" : "fas fa-ambulance",
+    "shouldAdminAchieve" : true,
+    "skillIds" : [ "Bloodline", "NurseJackie" ],
+    "description" : "In film and television, drama is a category of narrative fiction (or semi-fiction) intended to be more serious than humorous in tone. Drama of this kind is usually qualified with additional terms that specify its particular super-genre, macro-genre, or micro-genre, such as soap opera (operatic drama), police crime drama, political drama, legal drama, historical drama, domestic drama, teen drama, and comedy-drama (dramedy). These terms tend to indicate a particular setting or subject-matter, or else they qualify the otherwise serious tone of a drama with elements that encourage a broader range of moods."
+  }, {
+    "id" : "ZombieShowBingWatcher",
+    "name" : "Zombie Show Bing Watcher",
+    "iconClass" : "fas fa-biohazard",
+    "gem" : true,
+    "skillIds" : [ "TheWalkingDead", "ZNation", "IZombie" ],
+    "description" : "Binge-watching, also called binge-viewing or marathon-viewing, is the practice of watching entertainment or informational content for a prolonged time span, usually a single television show.  If you watch these zombie related shows in this short amount of time, then you are officially a Zombie Show Binge Watcher!"
+  } ],
   "name" : "Shows"
 } ]
