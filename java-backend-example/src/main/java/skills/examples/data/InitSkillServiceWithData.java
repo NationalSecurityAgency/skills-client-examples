@@ -15,6 +15,7 @@
  */
 package skills.examples.data;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ import skills.examples.data.model.Project;
 import skills.examples.data.model.Skill;
 import skills.examples.data.model.Subject;
 import skills.examples.data.serviceRequestModel.*;
+import skills.examples.data.serviceResponseModel.PendingApprovalsResponse;
+import skills.examples.data.serviceResponseModel.SkillDefResponse;
 import skills.examples.utils.RestTemplateFactory;
 import skills.examples.utils.SkillsConfig;
 
@@ -36,10 +39,8 @@ import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class InitSkillServiceWithData {
@@ -52,6 +53,8 @@ public class InitSkillServiceWithData {
 
     @Autowired
     private SampleDatasetLoader sampleDatasetLoader;
+
+    private ObjectMapper jsonMapper = new ObjectMapper();
 
     private static final Logger log = LoggerFactory.getLogger(InitSkillServiceWithData.class);
 
@@ -88,8 +91,9 @@ public class InitSkillServiceWithData {
                 post(rest, serviceUrl + "/root/pin/" + projectId);
             }
             post(rest, serviceUrl + "/admin/projects/"+projectId+"/settings/production.mode.enabled", new SettingRequest(projectId, "production.mode.enabled", "true"));
-
+            achieveBadges(project, rest, project.getBadges().stream().filter(badge -> badge.isShouldAdminAchieve()).collect(Collectors.toList()));
             reportSkills(rest, project);
+            approveAndRejectSomePendingApprovals(project, rest);
 
             log.info("Project [" + projectId + "] was created!");
         }
@@ -110,6 +114,36 @@ public class InitSkillServiceWithData {
         }
     }
 
+
+    private void approveAndRejectSomePendingApprovals(Project project, RestTemplate rest) {
+        PendingApprovalsResponse pendingApprovalsResponse = getPendingApprovals(project, rest);
+        // approve/reject 1/2 of the pending self report approval request
+        Integer numPendingApprovals = pendingApprovalsResponse.getCount();
+        List<Integer> approveSkillIds = new ArrayList<>();
+        List<Integer> rejectSkillIds = new ArrayList<>();
+        for (int i = 0; i < numPendingApprovals/2; i++) {
+            if (i % 2 == 0) {
+                approveSkillIds.add(pendingApprovalsResponse.getData().get(i).getId());
+            } else {
+                rejectSkillIds.add(pendingApprovalsResponse.getData().get(i).getId());
+            }
+        }
+        SkillApprovalRequest skillApprovalRequest = new SkillApprovalRequest();
+        skillApprovalRequest.setSkillApprovalIds(approveSkillIds);
+        String approveUrl = skillsConfig.getServiceUrl() + "/admin/projects/" + project.getId() +"/approvals/approve";
+        post(rest, approveUrl, skillApprovalRequest);
+
+        SkillRejectionRequest skillRejectionRequest = new SkillRejectionRequest();
+        skillRejectionRequest.setSkillApprovalIds(rejectSkillIds);
+        skillRejectionRequest.setRejectionMessage("Sorry, please try again.");
+        String rejectUrl = skillsConfig.getServiceUrl() + "/admin/projects/" + project.getId() +"/approvals/reject";
+        post(rest, rejectUrl, skillRejectionRequest);
+    }
+
+    private PendingApprovalsResponse getPendingApprovals(Project project, RestTemplate rest) {
+        String pendingApprovalsUrl = skillsConfig.getServiceUrl() + "/admin/projects/{projectId}/approvals?limit={limit}&page={page}&orderBy={orderBy}&ascending={ascending}";
+        return get(rest, pendingApprovalsUrl, PendingApprovalsResponse.class, project.getId(), 50, 1, "requestedOn", false);
+    }
     private boolean doesUserExist(String username) {
         try {
             RestTemplate rest = restTemplateFactory.getTemplateWithAuth();
@@ -167,13 +201,49 @@ public class InitSkillServiceWithData {
         for (Badge badge : project.getBadges()) {
             log.info("\nCreating [" + badge.getName() + "] badge with [" + badge.getSkillIds().size() + "] skills");
             String badgeUrl = projectUrl + "/badges/" + badge.getId();
-            post(rest, badgeUrl, new BadgeRequest(badge.getName(), badge.getDescription(), badge.getIconClass()));
+            BadgeRequest badgeRequest = new BadgeRequest(badge.getName(), badge.getDescription(), badge.getIconClass());
+            if (badge.isGem()) {
+                badgeRequest.setStartDate(new Date(getTimestamp(30 * 24 * 60)));  // 30 days ago
+                badgeRequest.setEndDate(new Date());
+            }
+            post(rest, badgeUrl, badgeRequest);
 
             for (String skillId : badge.getSkillIds()) {
                 String assignUrl = projectUrl + "/badge/" + badge.getId() + "/skills/" + skillId;
                 post(rest, assignUrl, null);
             }
         }
+    }
+
+    private void achieveBadges(Project project, RestTemplate rest, List<Badge> badges) {
+        for (Badge badge : badges) {
+            for (String skillId : badge.getSkillIds()) {
+                String subjectId = findSubjectForSkillId(project, skillId).getId();
+                String skillDefUrl = skillsConfig.getServiceUrl() + "/admin/projects/" + project.getId() + "/subjects/" + subjectId + "/skills/" + skillId;
+                SkillDefResponse skillDefResponse = get(rest, skillDefUrl, SkillDefResponse.class);
+                for (int i = 0; i < skillDefResponse.getNumPerformToCompletion(); i++) {
+                    String reportUrl = skillsConfig.getServiceUrl() + "/api/projects/" + project.getId() + "/skills/" + skillId;
+                    post(rest, reportUrl, new ReportSkillRequest(null, getTimestamp(i * (skillDefResponse.getPointIncrementInterval()+1))));
+                }
+            }
+        }
+    }
+
+    private Subject findSubjectForSkillId(Project project, String skillId) {
+        assert project != null && skillId != null;
+        Subject foundSubject = null;
+        for (int i = 0; i < project.getSubjects().size(); i++) {
+            Subject subject = project.getSubjects().get(i);
+            Optional<Skill> foundSkill = subject.getSkills().stream().filter(skill -> skill.getId().equals(skillId)).findFirst();
+            if (foundSkill.isPresent()) {
+                foundSubject = subject;
+                break;
+            }
+        }
+        if (foundSubject == null) {
+            throw new RuntimeException("Unable to find skillId ["+skillId+"] in project ["+project.getId()+"]");
+        }
+        return foundSubject;
     }
 
     private void assignSeriesDependencies(RestTemplate rest, String projectId, List<String> sortedSkillIds) {
@@ -256,16 +326,46 @@ public class InitSkillServiceWithData {
         long days = (long) daysAgo * 1000l * 60l * 60l * 24l;
         return System.currentTimeMillis() - days;
     }
+    private Long getTimestamp(Integer numMinutesAgo) {
+        long minutes = (long) numMinutesAgo * 1000l * 60l;
+        return System.currentTimeMillis() - minutes;
+    }
 
     private void post(RestTemplate restTemplate, String url) {
         post(restTemplate, url, null);
     }
 
-    private void post(RestTemplate restTemplate, String url, Object data) {
+    private String post(RestTemplate restTemplate, String url, Object data) {
         if (log.isDebugEnabled()) {
             log.debug("POST: " + url + " with [" + data + "]");
         }
-        restTemplate.postForEntity(url, data, String.class);
+        String retValue = null;
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, data, String.class);
+        if (responseEntity != null) {
+            retValue = responseEntity.getBody();
+        }
+        return retValue;
+    }
+
+    public <T> T get(RestTemplate restTemplate, String url, Class<T> valueType, Object... uriVariables) {
+        try {
+            String resultJson = get(restTemplate, url, uriVariables);
+            return jsonMapper.readValue(resultJson, valueType);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String get(RestTemplate restTemplate, String url, Object... uriVariables) {
+        if (log.isDebugEnabled()) {
+            log.debug("GET: " + url);
+        }
+        String retValue = null;
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class, uriVariables);
+        if (responseEntity != null) {
+            retValue = responseEntity.getBody();
+        }
+        return retValue;
     }
 
     private void createUser(String url) {

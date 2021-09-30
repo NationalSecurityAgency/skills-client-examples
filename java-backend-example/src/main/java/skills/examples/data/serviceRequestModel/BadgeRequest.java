@@ -15,14 +15,19 @@
  */
 package skills.examples.data.serviceRequestModel;
 
+import java.util.Date;
+
 public class BadgeRequest {
     private String name;
     private String description;
     private String iconClass;
     private Boolean enabled;  // applies only to global badges
 
-    public BadgeRequest() {
+    // applies only to "gem" badges
+    Date startDate;
+    Date endDate;
 
+    public BadgeRequest() {
     }
 
     public BadgeRequest(String name, String description, String iconClass) {
@@ -65,4 +70,12 @@ public class BadgeRequest {
     public Boolean getEnabled() { return enabled; }
 
     public void setEnabled(Boolean enabled) { this.enabled = enabled; }
+
+    public Date getStartDate() { return startDate; }
+
+    public void setStartDate(Date startDate) { this.startDate = startDate; }
+
+    public Date getEndDate() { return endDate; }
+
+    public void setEndDate(Date endDate) { this.endDate = endDate; }
 }
