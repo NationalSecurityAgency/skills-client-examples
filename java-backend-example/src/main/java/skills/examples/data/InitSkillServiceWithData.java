@@ -128,16 +128,20 @@ public class InitSkillServiceWithData {
                 rejectSkillIds.add(pendingApprovalsResponse.getData().get(i).getId());
             }
         }
-        SkillApprovalRequest skillApprovalRequest = new SkillApprovalRequest();
-        skillApprovalRequest.setSkillApprovalIds(approveSkillIds);
-        String approveUrl = skillsConfig.getServiceUrl() + "/admin/projects/" + project.getId() +"/approvals/approve";
-        post(rest, approveUrl, skillApprovalRequest);
+        if (!approveSkillIds.isEmpty()) {
+            SkillApprovalRequest skillApprovalRequest = new SkillApprovalRequest();
+            skillApprovalRequest.setSkillApprovalIds(approveSkillIds);
+            String approveUrl = skillsConfig.getServiceUrl() + "/admin/projects/" + project.getId() + "/approvals/approve";
+            post(rest, approveUrl, skillApprovalRequest);
+        }
 
-        SkillRejectionRequest skillRejectionRequest = new SkillRejectionRequest();
-        skillRejectionRequest.setSkillApprovalIds(rejectSkillIds);
-        skillRejectionRequest.setRejectionMessage("Sorry, please try again.");
-        String rejectUrl = skillsConfig.getServiceUrl() + "/admin/projects/" + project.getId() +"/approvals/reject";
-        post(rest, rejectUrl, skillRejectionRequest);
+        if (!rejectSkillIds.isEmpty()) {
+            SkillRejectionRequest skillRejectionRequest = new SkillRejectionRequest();
+            skillRejectionRequest.setSkillApprovalIds(rejectSkillIds);
+            skillRejectionRequest.setRejectionMessage("Sorry, please try again.");
+            String rejectUrl = skillsConfig.getServiceUrl() + "/admin/projects/" + project.getId() + "/approvals/reject";
+            post(rest, rejectUrl, skillRejectionRequest);
+        }
     }
 
     private PendingApprovalsResponse getPendingApprovals(Project project, RestTemplate rest) {
