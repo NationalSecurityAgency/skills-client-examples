@@ -201,7 +201,6 @@ public class InitSkillServiceWithData {
                 } else if (i % 2 == 0) {
                     skillRequest.setNumPerformToCompletion(2);
                 }
-                System.out.println(skillRequest.getName() + " - [" + skillRequest.getPointIncrementInterval() + "]");
                 post(rest, skillUrl, skillRequest);
             }
 
