@@ -162,10 +162,33 @@ public class InitSkillServiceWithData {
             String subjectUrl = projectUrl + "/subjects/" + subject.getId();
             post(rest, subjectUrl, new SubjRequest(subject.getName(), "", subject.getIconClass()));
 
+            List<String> groupNames = Arrays.asList("Harry Potter", "Cars", "Guardians of the Galaxy", "Thor", "The Hangover", "Iron Man", "Terminator", "The Hunger Games", "X-Men");
+            Map<String, GroupRequest> groupRequestMap = new HashMap<>();
             List<Skill> skills = subject.getSkills();
+            GroupRequest groupRequest = null;
             for (int i = 0; i < skills.size(); i++) {
                 Skill skill = skills.get(i);
+
+                String skillName = skill.getName();
                 String skillUrl = subjectUrl + "/skills/" + skill.getId();
+
+                List<String> foundGroupNames = groupNames.stream().filter(gName -> skillName.startsWith(gName)).collect(Collectors.toList());
+                String groupName = foundGroupNames != null && foundGroupNames.size() > 0 ? foundGroupNames.get(0) : null;
+                if (groupName != null) {
+                    groupRequest = new GroupRequest();
+                    groupRequest.setSkillId(groupName.replaceAll(" ", "").replaceAll("-", "") + "GroupId");
+                    groupRequest.setName(groupName);
+                    groupRequest.setSubjectId(subject.getId());
+                    groupRequest.setDescription(groupName + "Movies");
+                    String groupUrl = subjectUrl + "/skills/" + groupRequest.getSkillId();
+
+                    if (!groupRequestMap.containsKey(groupName)) {
+                        post(rest, groupUrl, groupRequest);
+                        groupRequestMap.put(groupName, groupRequest);
+                    }
+                    skillUrl = subjectUrl + "/groups/" + groupRequest.getSkillId() + "/skills/" + skill.getId();
+                }
+
                 SkillRequest skillRequest = new SkillRequest();
                 skillRequest.setName(skill.getName());
                 skillRequest.setDescription(skill.getDescription());
@@ -173,13 +196,23 @@ public class InitSkillServiceWithData {
                 if (skill.isSelfReporting()) {
                     skillRequest.setSelfReportingType(skill.getSelfReportingType());
                 }
-                if (i % 3 == 0) {
+                if (groupName != null || i % 3 == 0) {
                     skillRequest.setNumPerformToCompletion(3);
                 } else if (i % 2 == 0) {
                     skillRequest.setNumPerformToCompletion(2);
                 }
                 post(rest, skillUrl, skillRequest);
             }
+
+            for (GroupRequest gR : groupRequestMap.values()) {
+                gR.setEnabled("true");
+                if (gR.getName().startsWith("Harry Potter")) {
+                    gR.setNumSkillsRequired(4);
+                }
+                String groupUrl = subjectUrl + "/skills/" + gR.getSkillId();
+                post(rest, groupUrl, gR);
+            }
+
             log.info("\nCompleted [" + subject.getName() + "] subject");
         }
     }
