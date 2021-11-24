@@ -25,6 +25,7 @@ on:
       - '.gitlab-ci.yml'
   schedule:
     - cron: '0 5 * * *'
+  workflow_dispatch:
 
 jobs:
 
