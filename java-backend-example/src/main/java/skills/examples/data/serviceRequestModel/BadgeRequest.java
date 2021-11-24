@@ -21,7 +21,7 @@ public class BadgeRequest {
     private String name;
     private String description;
     private String iconClass;
-    private Boolean enabled;  // applies only to global badges
+    private Boolean enabled;
 
     // applies only to "gem" badges
     Date startDate;

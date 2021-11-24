@@ -227,11 +227,14 @@ public class InitSkillServiceWithData {
         String description = "The \"Movies and Shows Expert\" must achieve at least Level "+level+" in both the Movies and Shows projects.";
         String iconClass = "mi mi-live-tv";
         String badgeUrl = serviceUrl + "/supervisor/badges/" + badgeId;
-        post(rest, badgeUrl, new BadgeRequest(name, description, iconClass, true));
+        post(rest, badgeUrl, new BadgeRequest(name, description, iconClass));
 
         post(rest, serviceUrl + "/supervisor/badges/" + badgeId + "/projects/movies/level/"+level);
         post(rest, serviceUrl + "/supervisor/badges/" + badgeId + "/projects/shows/level/"+level);
         log.info("\nCreating Global Badge [" + name + "] that requires users to achieve at least level [" + level + "] for both projects");
+
+        // enable
+        post(rest, badgeUrl, new BadgeRequest(name, description, iconClass, true));
     }
 
     private void addBadges(Project project, RestTemplate rest, String projectUrl) {
@@ -249,6 +252,10 @@ public class InitSkillServiceWithData {
                 String assignUrl = projectUrl + "/badge/" + badge.getId() + "/skills/" + skillId;
                 post(rest, assignUrl, null);
             }
+
+            // enable badge
+            badgeRequest.setEnabled(true);
+            post(rest, badgeUrl, badgeRequest);
         }
     }
 
