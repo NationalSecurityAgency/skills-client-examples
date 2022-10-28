@@ -183,7 +183,7 @@ public class InitSkillServiceWithData {
                     groupRequest.setSkillId(groupName.replaceAll(" ", "").replaceAll("-", "") + "GroupId");
                     groupRequest.setName(groupName);
                     groupRequest.setSubjectId(subject.getId());
-                    groupRequest.setDescription(groupName + "Movies");
+                    groupRequest.setDescription(skillsConfig.getDescPrefix() + groupName + "Movies");
                     String groupUrl = subjectUrl + "/skills/" + groupRequest.getSkillId();
 
                     if (!groupRequestMap.containsKey(groupName)) {
@@ -195,7 +195,7 @@ public class InitSkillServiceWithData {
 
                 SkillRequest skillRequest = new SkillRequest();
                 skillRequest.setName(skill.getName());
-                skillRequest.setDescription(skill.getDescription());
+                skillRequest.setDescription(skillsConfig.getDescPrefix() + skill.getDescription());
                 skillRequest.setHelpUrl(skill.getHelpUrl());
                 if (skill.isSelfReporting()) {
                     skillRequest.setSelfReportingType(skill.getSelfReportingType());

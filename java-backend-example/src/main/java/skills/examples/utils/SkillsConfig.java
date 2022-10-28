@@ -40,6 +40,8 @@ public class SkillsConfig {
     Integer numDays = 365;
     List<String> additionalRootUsers = new ArrayList<>();  // optional, only applies to non-PKI authMode
 
+    String descPrefix = "";
+
     public String getServiceUrl() { return serviceUrl; }
     public String getAuthenticator() { return authenticator; }
     public String getUsername() { return username; }
@@ -65,6 +67,9 @@ public class SkillsConfig {
     public List<String> getAdditionalRootUsers() { return additionalRootUsers; }
     public void setAdditionalRootUsers(List<String> additionalRootUsers) { this.additionalRootUsers = additionalRootUsers; }
 
+    public String getDescPrefix() { return descPrefix; }
+    public void setDescPrefix(String descPrefix) { this.descPrefix = descPrefix; }
+
     @Override
     public String toString() {
         return new ToStringCreator(this)
@@ -78,6 +83,7 @@ public class SkillsConfig {
                 .append("numEvents", numEvents)
                 .append("numUsers", numUsers)
                 .append("numDays", numDays)
+                .append("descPrefix", descPrefix)
                 .toString();
     }
 }
