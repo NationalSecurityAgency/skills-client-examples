@@ -23,6 +23,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import skills.examples.data.model.Badge;
@@ -40,6 +41,7 @@ import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
@@ -183,7 +185,7 @@ public class InitSkillServiceWithData {
                     groupRequest.setSkillId(groupName.replaceAll(" ", "").replaceAll("-", "") + "GroupId");
                     groupRequest.setName(groupName);
                     groupRequest.setSubjectId(subject.getId());
-                    groupRequest.setDescription(skillsConfig.getDescPrefix() + groupName + "Movies");
+                    groupRequest.setDescription(setDescPrefix(groupName + "Movies"));
                     String groupUrl = subjectUrl + "/skills/" + groupRequest.getSkillId();
 
                     if (!groupRequestMap.containsKey(groupName)) {
@@ -195,7 +197,7 @@ public class InitSkillServiceWithData {
 
                 SkillRequest skillRequest = new SkillRequest();
                 skillRequest.setName(skill.getName());
-                skillRequest.setDescription(skillsConfig.getDescPrefix() + skill.getDescription());
+                skillRequest.setDescription(setDescPrefix(skill.getDescription()));
                 skillRequest.setHelpUrl(skill.getHelpUrl());
                 if (skill.isSelfReporting()) {
                     skillRequest.setSelfReportingType(skill.getSelfReportingType());
@@ -227,21 +229,21 @@ public class InitSkillServiceWithData {
         String description = "The \"Movies and Shows Expert\" must achieve at least Level "+level+" in both the Movies and Shows projects.";
         String iconClass = "mi mi-live-tv";
         String badgeUrl = serviceUrl + "/supervisor/badges/" + badgeId;
-        post(rest, badgeUrl, new BadgeRequest(name, description, iconClass));
+        post(rest, badgeUrl, new BadgeRequest(name, setDescPrefix(description), iconClass));
 
         post(rest, serviceUrl + "/supervisor/badges/" + badgeId + "/projects/movies/level/"+level);
         post(rest, serviceUrl + "/supervisor/badges/" + badgeId + "/projects/shows/level/"+level);
         log.info("\nCreating Global Badge [" + name + "] that requires users to achieve at least level [" + level + "] for both projects");
 
         // enable
-        post(rest, badgeUrl, new BadgeRequest(name, description, iconClass, true));
+        post(rest, badgeUrl, new BadgeRequest(name, setDescPrefix(description), iconClass, true));
     }
 
     private void addBadges(Project project, RestTemplate rest, String projectUrl) {
         for (Badge badge : project.getBadges()) {
             log.info("\nCreating [" + badge.getName() + "] badge with [" + badge.getSkillIds().size() + "] skills");
             String badgeUrl = projectUrl + "/badges/" + badge.getId();
-            BadgeRequest badgeRequest = new BadgeRequest(badge.getName(), badge.getDescription(), badge.getIconClass());
+            BadgeRequest badgeRequest = new BadgeRequest(badge.getName(), setDescPrefix(badge.getDescription()), badge.getIconClass());
             if (badge.isGem()) {
                 badgeRequest.setStartDate(new Date(getTimestamp(30 * 24 * 60)));  // 30 days ago
                 badgeRequest.setEndDate(new Date());
@@ -362,6 +364,15 @@ public class InitSkillServiceWithData {
                     post(rest, reportUrl+skillId, new ReportSkillRequest(userId, getRandomTimestamp(numDays, random)));
                 }
             }
+        }
+    }
+
+    private static final Pattern PREFIX_PATTERN = Pattern.compile("(?m)(^\\S.+$)");
+    private String setDescPrefix(String description) {
+        if (StringUtils.hasText(skillsConfig.getDescPrefix())) {
+            return PREFIX_PATTERN.matcher(description).replaceAll(skillsConfig.getDescPrefix()+" $1");
+        } else {
+            return description;
         }
     }
 
