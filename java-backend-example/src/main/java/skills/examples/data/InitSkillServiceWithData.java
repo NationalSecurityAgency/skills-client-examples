@@ -140,7 +140,7 @@ public class InitSkillServiceWithData {
         if (!rejectSkillIds.isEmpty()) {
             SkillRejectionRequest skillRejectionRequest = new SkillRejectionRequest();
             skillRejectionRequest.setSkillApprovalIds(rejectSkillIds);
-            skillRejectionRequest.setRejectionMessage("Sorry, please try again.");
+            skillRejectionRequest.setRejectionMessage(skillsConfig.getDescPrefix()+"Sorry, please try again.");
             String rejectUrl = skillsConfig.getServiceUrl() + "/admin/projects/" + project.getId() + "/approvals/reject";
             post(rest, rejectUrl, skillRejectionRequest);
         }
