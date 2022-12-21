@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "description": "SkillTree Vue.js examples",
   "scripts": {
-    "licenseDepCheck": "license-checker --production --onlyAllow='MIT;ISC;Apache-2.0' --summary",
+    "licenseDepCheck": "license-checker --production --onlyAllow='MIT;ISC;Apache-2.0;BSD-3-Clause' --summary",
     "licenseHeaderCheck": "license-check-and-add check -f '../license-add/license-add-config.json'",
     "licenseHeaderAdd": "license-check-and-add add -f ../license-add/license-add-config.json",
     "serve": "npm run licenseDepCheck && npm run licenseHeaderCheck && vue-cli-service serve",
