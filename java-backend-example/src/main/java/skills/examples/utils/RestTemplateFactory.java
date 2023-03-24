@@ -48,6 +48,9 @@ public class RestTemplateFactory {
     }
 
     public RestTemplate getTemplateWithAuth() {
+        return this.getTemplateWithAuth(skillsConfig.getUsername());
+    }
+    public RestTemplate getTemplateWithAuth(String username) {
         RestTemplate restTemplate = new RestTemplate();
         if (!skillsConfig.getAuthMode().equalsIgnoreCase("pki")) {
             // must configure HttpComponentsClientHttpRequestFactory as SpringTemplate does
@@ -56,7 +59,7 @@ public class RestTemplateFactory {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            params.add("username", skillsConfig.getUsername());
+            params.add("username", username);
             params.add("password", skillsConfig.getPassword());
 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
