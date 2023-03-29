@@ -31,7 +31,6 @@ jobs:
 
   build-and-test:
     runs-on: ubuntu-latest
-
     services:
       postgres:
         # Docker Hub image
