@@ -229,7 +229,7 @@ jobs:
     - name: Save docker logs
       if: ${{ always() }}
       run: |
-        ls
+        mkdir ./e2e-tests/logs
         docker logs skills-service > ./e2e-tests/logs/skills-service-logs.txt
 
     - name: upload result artifacts
