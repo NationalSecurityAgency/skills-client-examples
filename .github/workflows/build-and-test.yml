@@ -225,7 +225,7 @@ jobs:
         npm run services:start:react
         npm run services:start:js
         npm run cy:run
-        docker logs skills-service > ./e2e-tests/logs/skills-service-log.txt
+        docker logs skills-service > ./logs/skills-service-log.txt
 
     - name: upload result artifacts
       if: ${{ always() }}
