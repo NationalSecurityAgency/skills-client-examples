@@ -225,7 +225,11 @@ jobs:
         npm run services:start:react
         npm run services:start:js
         npm run cy:run
-        docker logs skills-service
+
+    - name: Save docker logs
+      if: ${{ always() }}
+      run: |
+        docker logs skills-service > ./logs/skills-service-logs.txt
 
     - name: upload result artifacts
       if: ${{ always() }}
