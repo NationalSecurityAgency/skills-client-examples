@@ -183,7 +183,7 @@ jobs:
     - name: run skill-service
       run: |
         LATEST_TAG=$(wget -q https://registry.hub.docker.com/v2/repositories/skilltree/skills-service/tags -O - | jq -r ".results[].name" | sort | tail -n1)
-        docker run --name skills-service --network host -d -p 8080:8080 -e SPRING_PROPS="spring.datasource.url=jdbc:postgresql://localhost:5432/skills spring.datasource.username=postgres spring.datasource.password=skillsPassword" skilltree/skills-service:${LATEST_TAG}
+        docker run --name skills-service --network host -d -p 8080:8080 -e SPRING_PROPS="spring.datasource.url=jdbc:postgresql://localhost:5432/skills,spring.datasource.username=postgres,spring.datasource.password=skillsPassword" skilltree/skills-service:${LATEST_TAG}
 
     - name: Build java-backend-example service
       run: |
