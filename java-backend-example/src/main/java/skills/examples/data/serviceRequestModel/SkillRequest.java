@@ -24,6 +24,7 @@ public class SkillRequest {
     private String description;
     private String helpUrl;
     private String selfReportingType;
+    private String quizId;
 
     public String getName() {
         return name;
@@ -89,6 +90,14 @@ public class SkillRequest {
         this.selfReportingType = selfReportingType;
     }
 
+    public String getQuizId() {
+        return quizId;
+    }
+
+    public void setQuizId(String quizId) {
+        this.quizId = quizId;
+    }
+
     @Override
     public String toString() {
         return "SkillRequest{" +
@@ -100,8 +109,7 @@ public class SkillRequest {
                 ", description='" + description + '\'' +
                 ", helpUrl='" + helpUrl + '\'' +
                 ", selfReportingType='" + selfReportingType + '\'' +
+                ", quizId='" + quizId + '\'' +
                 '}';
     }
 }
-
-

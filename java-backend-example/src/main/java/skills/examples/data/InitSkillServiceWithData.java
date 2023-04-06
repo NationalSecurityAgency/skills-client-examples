@@ -15,6 +15,8 @@
  */
 package skills.examples.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +28,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import skills.examples.data.model.Badge;
-import skills.examples.data.model.Project;
-import skills.examples.data.model.Skill;
-import skills.examples.data.model.Subject;
+import skills.examples.data.model.*;
 import skills.examples.data.serviceRequestModel.*;
-import skills.examples.data.serviceResponseModel.PendingApprovalsResponse;
-import skills.examples.data.serviceResponseModel.SkillDefResponse;
+import skills.examples.data.serviceResponseModel.*;
 import skills.examples.utils.RestTemplateFactory;
 import skills.examples.utils.SkillsConfig;
 
@@ -62,7 +60,8 @@ public class InitSkillServiceWithData {
 
     @PostConstruct
     void load() throws Exception {
-        log.info("SkillsConfig ["+skillsConfig+"]");
+        log.info("SkillsConfig [" + skillsConfig + "]");
+
         if (skillsConfig.getCreateRootAccount()) {
             createRootAccount();
         } else if (!skillsConfig.isPkiMode()) {
@@ -73,7 +72,8 @@ public class InitSkillServiceWithData {
         RestTemplate rest = restTemplateFactory.getTemplateWithAuth();
 
         List<Project> projects = sampleDatasetLoader.getProjects();
-        projectLoop: for (Project project : projects) {
+        projectLoop:
+        for (Project project : projects) {
             if (rest.getForEntity(serviceUrl + "/app/projects", String.class).getBody().contains(project.getName())) {
                 log.info("Project [" + project.getName() + "] already exists!");
                 break projectLoop;
@@ -92,7 +92,8 @@ public class InitSkillServiceWithData {
             if (skillsConfig.getCreateRootAccount()) {
                 post(rest, serviceUrl + "/root/pin/" + projectId);
             }
-            post(rest, serviceUrl + "/admin/projects/"+projectId+"/settings/production.mode.enabled", new SettingRequest(projectId, "production.mode.enabled", "true"));
+            post(rest, serviceUrl + "/admin/projects/" + projectId + "/settings/production.mode.enabled", new SettingRequest(projectId, "production.mode.enabled", "true"));
+            post(rest, serviceUrl + "/api/myprojects/" + projectId);
             achieveBadges(project, rest, project.getBadges().stream().filter(badge -> badge.isShouldAdminAchieve()).collect(Collectors.toList()));
             reportSkills(rest, project);
             approveAndRejectSomePendingApprovals(project, rest);
@@ -114,16 +115,208 @@ public class InitSkillServiceWithData {
         if (skillsConfig.getCreateRootAccount()) {
             addGlobalBadge(rest, serviceUrl, 2);
         }
+
+        createQuizzesAndSurveys(rest);
     }
 
+    private void createQuizzesAndSurveys(RestTemplate rest) {
+        List<String> quizIds = loadQuizzes(rest);
+        List<String> surveyIds = loadSurveys(rest);
+        createQuizAndSurveysProject(rest);
+        if (!skillsConfig.isPkiMode()) {
+            for (String quizId : quizIds) {
+                achieveQuizForUser(rest, "user1@email.com", quizId, true);
+                achieveQuizForUser(rest, "user2@email.com", quizId, true);
+                achieveQuizForUser(rest, "user3@email.com", quizId, false);
+                achieveQuizForUser(rest, "user4@email.com", quizId, true);
+            }
+            for (String surveyId : surveyIds) {
+                completeSurvey(rest, "user1@email.com", surveyId);
+                completeSurvey(rest, "user2@email.com", surveyId);
+            }
+        }
+    }
 
+    private void createQuizAndSurveysProject(RestTemplate rest) {
+        String serviceUrl = skillsConfig.getServiceUrl();
+        String projectId = "quizzesAndSurveys";
+        post(rest, serviceUrl + "/app/projects/" + projectId, new ProjRequest("Surveys and Quizzes Skills"));
+        post(rest, serviceUrl + "/root/pin/" + projectId);
+
+        String projectUrl = serviceUrl + "/admin/projects/" + projectId;
+        String subjectUrl = projectUrl + "/subjects/scienceQuizzes";
+        post(rest, subjectUrl, new SubjRequest("Science", "", "fas fa-microscope"));
+
+        createQuizBasedSkill(rest, subjectUrl, "Simple Science", "SimpleScienceQuiz");
+        createQuizBasedSkill(rest, subjectUrl, "Short Science", "ShortScienceQuiz");
+
+        subjectUrl = projectUrl + "/subjects/triviaQuizzes";
+        post(rest, subjectUrl, new SubjRequest("Trivia", "", "fas fa-brain"));
+        createQuizBasedSkill(rest, subjectUrl, "Trivia Challenge #1", "TriviaChallenge1");
+        createQuizBasedSkill(rest, subjectUrl, "Trivia Challenge #2", "TriviaChallenge2");
+        createQuizBasedSkill(rest, subjectUrl, "Trivia Challenge #3", "TriviaChallenge3");
+        createQuizBasedSkill(rest, subjectUrl, "Trivia Challenge #4", "TriviaChallenge4");
+
+        subjectUrl = projectUrl + "/subjects/surveys";
+        post(rest, subjectUrl, new SubjRequest("Surveys", "", "fas fa-tasks"));
+        createQuizBasedSkill(rest, subjectUrl, "Coding Language and Frameworks Preferences", "CodingLanguageandFrameworksPreferences");
+        createQuizBasedSkill(rest, subjectUrl, "Which TV character are you?", "WhichTVcharacterareyou");
+        post(rest, serviceUrl + "/admin/projects/" + projectId + "/settings/production.mode.enabled", new SettingRequest(projectId, "production.mode.enabled", "true"));
+        post(rest, serviceUrl + "/api/myprojects/" + projectId);
+    }
+    private void createQuizBasedSkill(RestTemplate rest, String subjectUrl, String quizName, String quizId) {
+        String skillId = quizId + "Skill";
+        SkillRequest skillRequest = new SkillRequest();
+        skillRequest.setName(quizName);
+        skillRequest.setDescription("Take a `" + quizName + "` and earn points!!");
+        skillRequest.setSelfReportingType("Quiz");
+        skillRequest.setPointIncrement(100);
+        skillRequest.setNumPerformToCompletion(1);
+        skillRequest.setQuizId(quizId);
+        String skillUrl = subjectUrl + "/skills/" + skillId;
+        post(rest, skillUrl, skillRequest);
+    }
+
+    private List<String> loadSurveys(RestTemplate rest) {
+        List<String> surveyIds = new ArrayList<>();
+        String serviceUrl = skillsConfig.getServiceUrl();
+        List<Survey> surveys = sampleDatasetLoader.getSurveys();
+        for (Survey survey : surveys) {
+            String surveyId = survey.getSurveyName().replaceAll(" ", "").replaceAll("[#\\?]", "");
+            surveyIds.add(surveyId);
+            post(rest, serviceUrl + "/app/quiz-definitions/" + surveyId, new QuizDefRequest(survey.getSurveyName(), survey.getDescription(), "Survey"));
+            for (SurveyQuestion q : survey.getQuestions()) {
+                String questionUrl = serviceUrl + "/admin/quiz-definitions/" + surveyId + "/create-question";
+                QuizQuestionDefRequest questionDefRequest = new QuizQuestionDefRequest();
+                questionDefRequest.setQuestion(q.getQuestion());
+                questionDefRequest.setQuestionType(q.getType());
+                List<QuizAnswerDefRequest> answers = new ArrayList<>();
+                if (q.getAnswers() != null && q.getAnswers().size() > 0) {
+                    for (String a : q.getAnswers()){
+                        answers.add(new QuizAnswerDefRequest(a, false));
+                    }
+                }
+                questionDefRequest.setAnswers(answers);
+                post(rest, questionUrl, questionDefRequest);
+            }
+
+            log.info("Created survey [{}] with [{}] questions", surveyId, survey.getQuestions().size());
+        }
+        return surveyIds;
+    }
+
+    private  List<String> loadQuizzes(RestTemplate rest) {
+        List<String> quizIds = new ArrayList<>();
+        String serviceUrl = skillsConfig.getServiceUrl();
+
+        List<Quiz> quizzes = sampleDatasetLoader.getQuizzes();
+        for (Quiz quiz : quizzes) {
+            String quizId = quiz.getQuizName().replaceAll(" ", "").replaceAll("#", "");
+            quizIds.add(quizId);
+            post(rest, serviceUrl + "/app/quiz-definitions/" + quizId, new QuizDefRequest(quiz.getQuizName(), quiz.getDescription()));
+            for (Question q : quiz.getQuestions()) {
+                String questionUrl = serviceUrl + "/admin/quiz-definitions/" + quizId + "/create-question";
+                QuizQuestionDefRequest questionDefRequest = new QuizQuestionDefRequest();
+                questionDefRequest.setQuestion(q.getQuestion());
+                questionDefRequest.setQuestionType("SingleChoice");
+                List<QuizAnswerDefRequest> answers = new ArrayList<>();
+                for (Answer a : q.getAnswers()){
+                    answers.add(new QuizAnswerDefRequest(a.getText(), a.isCorrect()));
+                }
+                questionDefRequest.setAnswers(answers);
+                post(rest, questionUrl, questionDefRequest);
+            }
+
+            log.info("Created quiz [{}] with [{}] questions", quizId, quiz.getQuestions().size());
+        }
+
+        return quizIds;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class QuizAttemptStartResult {
+        private Integer id;
+        public Integer getId() { return id;}
+        public void setId(Integer id) { this.id = id; }
+    }
+    static class QuizReportAnswerReq {
+        private Boolean isSelected = true;
+        private String answerText;
+
+        public QuizReportAnswerReq() {
+        }
+
+        public QuizReportAnswerReq(String answerText) {
+            this.answerText = answerText;
+        }
+
+        public Boolean getSelected() { return isSelected; }
+        public void setSelected(Boolean selected) { isSelected = selected; }
+        public String getAnswerText() { return answerText; }
+        public void setAnswerText(String answerText) { this.answerText = answerText; }
+    }
+
+    private void completeSurvey(RestTemplate adminUserRest, String userId, String surveyId) {
+        createUser(skillsConfig.getServiceUrl() + "/createAccount", userId);
+        RestTemplate thisUserRest = restTemplateFactory.getTemplateWithAuth(userId);
+
+        QuizInfoResponse quizInfoResponse = get(adminUserRest,
+                skillsConfig.getServiceUrl() + "/admin/quiz-definitions/" + surveyId + "/questions", QuizInfoResponse.class);
+
+        String res = post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + surveyId + "/attempt");
+        QuizAttemptStartResult quizAttemptStartResult = parseStrRes(res, QuizAttemptStartResult.class);
+        int index = 0;
+        for (QuizQuestionInfoResponse question : quizInfoResponse.getQuestions()) {
+            index++;
+            String answerText = question.getQuestionType().equalsIgnoreCase("TextInput") ? "Sample Response Text" : null;
+            post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + surveyId + "/attempt/" + quizAttemptStartResult.getId() + "/answers/" + question.getAnswers().get(0).getId(), new QuizReportAnswerReq(answerText));
+        }
+
+        post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + surveyId + "/attempt/" + quizAttemptStartResult.getId() + "/complete");
+    }
+    private void achieveQuizForUser(RestTemplate adminUserRest, String userId, String quizId, boolean pass) {
+        createUser(skillsConfig.getServiceUrl() + "/createAccount", userId);
+        RestTemplate thisUserRest = restTemplateFactory.getTemplateWithAuth(userId);
+
+        QuizInfoResponse quizInfoResponse = get(adminUserRest,
+                skillsConfig.getServiceUrl() + "/admin/quiz-definitions/" + quizId + "/questions", QuizInfoResponse.class);
+
+        String res = post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt");
+        QuizAttemptStartResult quizAttemptStartResult = parseStrRes(res, QuizAttemptStartResult.class);
+        int index = 0;
+        for (QuizQuestionInfoResponse question : quizInfoResponse.getQuestions()) {
+            index++;
+            boolean failIfPassNotTrue = index % 2 == 0;
+            if (pass || !failIfPassNotTrue) {
+                List<QuizAnswerOptionsInfoResponse> correctAnswers = question.getAnswers()
+                        .stream().filter(answer -> answer.getIsCorrect()).collect(Collectors.toList());
+                for (QuizAnswerOptionsInfoResponse correctAnswer : correctAnswers) {
+                    post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt/" + quizAttemptStartResult.getId() + "/answers/" + correctAnswer.getId(), new QuizReportAnswerReq());
+                }
+            } else {
+                List<QuizAnswerOptionsInfoResponse> wrongAnswers = question.getAnswers()
+                        .stream().filter(answer -> !answer.getIsCorrect()).collect(Collectors.toList());
+                post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt/" + quizAttemptStartResult.getId() + "/answers/" + wrongAnswers.get(0).getId(), new QuizReportAnswerReq());
+            }
+        }
+
+        post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt/" + quizAttemptStartResult.getId() + "/complete");
+    }
+
+    private <T> T parseStrRes(String res, Class<T> expectedClass) {
+        try {
+            return jsonMapper.readValue(res, expectedClass);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
     private void approveAndRejectSomePendingApprovals(Project project, RestTemplate rest) {
         PendingApprovalsResponse pendingApprovalsResponse = getPendingApprovals(project, rest);
         // approve/reject 1/2 of the pending self report approval request
         Integer numPendingApprovals = pendingApprovalsResponse.getCount();
         List<Integer> approveSkillIds = new ArrayList<>();
         List<Integer> rejectSkillIds = new ArrayList<>();
-        for (int i = 0; i < numPendingApprovals/2; i++) {
+        for (int i = 0; i < numPendingApprovals / 2; i++) {
             if (i % 2 == 0) {
                 approveSkillIds.add(pendingApprovalsResponse.getData().get(i).getId());
             } else {
@@ -140,7 +333,7 @@ public class InitSkillServiceWithData {
         if (!rejectSkillIds.isEmpty()) {
             SkillRejectionRequest skillRejectionRequest = new SkillRejectionRequest();
             skillRejectionRequest.setSkillApprovalIds(rejectSkillIds);
-            skillRejectionRequest.setRejectionMessage(skillsConfig.getDescPrefix()+"Sorry, please try again.");
+            skillRejectionRequest.setRejectionMessage(skillsConfig.getDescPrefix() + "Sorry, please try again.");
             String rejectUrl = skillsConfig.getServiceUrl() + "/admin/projects/" + project.getId() + "/approvals/reject";
             post(rest, rejectUrl, skillRejectionRequest);
         }
@@ -150,6 +343,7 @@ public class InitSkillServiceWithData {
         String pendingApprovalsUrl = skillsConfig.getServiceUrl() + "/admin/projects/{projectId}/approvals?limit={limit}&page={page}&orderBy={orderBy}&ascending={ascending}";
         return get(rest, pendingApprovalsUrl, PendingApprovalsResponse.class, project.getId(), 50, 1, "requestedOn", false);
     }
+
     private boolean doesUserExist(String username) {
         try {
             RestTemplate rest = restTemplateFactory.getTemplateWithAuth();
@@ -226,13 +420,13 @@ public class InitSkillServiceWithData {
     private void addGlobalBadge(RestTemplate rest, String serviceUrl, Integer level) {
         String badgeId = "MoviesandShowsExpertBadge";
         String name = "Movie and Show Expert";
-        String description = "The \"Movies and Shows Expert\" must achieve at least Level "+level+" in both the Movies and Shows projects.";
+        String description = "The \"Movies and Shows Expert\" must achieve at least Level " + level + " in both the Movies and Shows projects.";
         String iconClass = "mi mi-live-tv";
         String badgeUrl = serviceUrl + "/supervisor/badges/" + badgeId;
         post(rest, badgeUrl, new BadgeRequest(name, setDescPrefix(description), iconClass));
 
-        post(rest, serviceUrl + "/supervisor/badges/" + badgeId + "/projects/movies/level/"+level);
-        post(rest, serviceUrl + "/supervisor/badges/" + badgeId + "/projects/shows/level/"+level);
+        post(rest, serviceUrl + "/supervisor/badges/" + badgeId + "/projects/movies/level/" + level);
+        post(rest, serviceUrl + "/supervisor/badges/" + badgeId + "/projects/shows/level/" + level);
         log.info("\nCreating Global Badge [" + name + "] that requires users to achieve at least level [" + level + "] for both projects");
 
         // enable
@@ -269,7 +463,7 @@ public class InitSkillServiceWithData {
                 SkillDefResponse skillDefResponse = get(rest, skillDefUrl, SkillDefResponse.class);
                 for (int i = 0; i < skillDefResponse.getNumPerformToCompletion(); i++) {
                     String reportUrl = skillsConfig.getServiceUrl() + "/api/projects/" + project.getId() + "/skills/" + skillId;
-                    post(rest, reportUrl, new ReportSkillRequest(null, getTimestamp(i * (skillDefResponse.getPointIncrementInterval()+1))));
+                    post(rest, reportUrl, new ReportSkillRequest(null, getTimestamp(i * (skillDefResponse.getPointIncrementInterval() + 1))));
                 }
             }
         }
@@ -287,7 +481,7 @@ public class InitSkillServiceWithData {
             }
         }
         if (foundSubject == null) {
-            throw new RuntimeException("Unable to find skillId ["+skillId+"] in project ["+project.getId()+"]");
+            throw new RuntimeException("Unable to find skillId [" + skillId + "] in project [" + project.getId() + "]");
         }
         return foundSubject;
     }
@@ -302,16 +496,16 @@ public class InitSkillServiceWithData {
 
     private void assignDependency(RestTemplate rest, String projectId, String fromSkillId, String toSkillId) {
         String serviceUrl = skillsConfig.getServiceUrl();
-        post(rest, serviceUrl + "/admin/projects/"+projectId+"/skills/"+fromSkillId+"/dependency/"+toSkillId);
-        log.info("Assigned project ("+projectId+") dependency: "+fromSkillId+" -> "+toSkillId);
+        post(rest, serviceUrl + "/admin/projects/" + projectId + "/skills/" + fromSkillId + "/dependency/" + toSkillId);
+        log.info("Assigned project (" + projectId + ") dependency: " + fromSkillId + " -> " + toSkillId);
     }
 
     private void assignCrossProjectDependency(RestTemplate rest, String fromProjId, String fromSkillId, String toProjId, String toSkillId) {
         String serviceUrl = skillsConfig.getServiceUrl();
         // share skill with other project and then assign cross project dependency
-        post(rest, serviceUrl + "/admin/projects/"+fromProjId+"/skills/"+fromSkillId+"/shared/projects/"+toProjId);
-        post(rest, serviceUrl + "/admin/projects/"+toProjId+"/skills/"+toSkillId+"/dependency/projects/"+fromProjId+"/skills/"+fromSkillId);
-        log.info("Assigned cross-project dependency: "+fromProjId+":"+fromSkillId+" -> "+toProjId+":"+toSkillId);
+        post(rest, serviceUrl + "/admin/projects/" + fromProjId + "/skills/" + fromSkillId + "/shared/projects/" + toProjId);
+        post(rest, serviceUrl + "/admin/projects/" + toProjId + "/skills/" + toSkillId + "/dependency/projects/" + fromProjId + "/skills/" + fromSkillId);
+        log.info("Assigned cross-project dependency: " + fromProjId + ":" + fromSkillId + " -> " + toProjId + ":" + toSkillId);
     }
 
     private void reportSkills(RestTemplate rest, Project project) {
@@ -352,7 +546,7 @@ public class InitSkillServiceWithData {
             // attempt to report a few invalid skillId's
             String reportUrl = skillsConfig.getServiceUrl() + "/api/projects/" + project.getId() + "/skills/";
             try {
-                post(rest, reportUrl+"invalidSkillId", new ReportSkillRequest(userId, getRandomTimestamp(numDays, random)));
+                post(rest, reportUrl + "invalidSkillId", new ReportSkillRequest(userId, getRandomTimestamp(numDays, random)));
             } catch (Exception e) {
                 // ignore
             }
@@ -361,16 +555,17 @@ public class InitSkillServiceWithData {
             for (int i = 0; i < 3; i++) {
                 String skillId = skillIds.get(i);
                 for (int j = 0; j < 10; j++) {
-                    post(rest, reportUrl+skillId, new ReportSkillRequest(userId, getRandomTimestamp(numDays, random)));
+                    post(rest, reportUrl + skillId, new ReportSkillRequest(userId, getRandomTimestamp(numDays, random)));
                 }
             }
         }
     }
 
     private static final Pattern PREFIX_PATTERN = Pattern.compile("(?m)(^\\S.+$)");
+
     private String setDescPrefix(String description) {
         if (StringUtils.hasText(skillsConfig.getDescPrefix())) {
-            return PREFIX_PATTERN.matcher(description).replaceAll(skillsConfig.getDescPrefix()+" $1");
+            return PREFIX_PATTERN.matcher(description).replaceAll(skillsConfig.getDescPrefix() + " $1");
         } else {
             return description;
         }
@@ -381,13 +576,14 @@ public class InitSkillServiceWithData {
         long days = (long) daysAgo * 1000l * 60l * 60l * 24l;
         return System.currentTimeMillis() - days;
     }
+
     private Long getTimestamp(Integer numMinutesAgo) {
         long minutes = (long) numMinutesAgo * 1000l * 60l;
         return System.currentTimeMillis() - minutes;
     }
 
-    private void post(RestTemplate restTemplate, String url) {
-        post(restTemplate, url, null);
+    private String post(RestTemplate restTemplate, String url) {
+        return post(restTemplate, url, null);
     }
 
     private String post(RestTemplate restTemplate, String url, Object data) {
@@ -433,9 +629,9 @@ public class InitSkillServiceWithData {
             UserInfoRequest userInfoRequest = new UserInfoRequest("Bill", "Gosling", username, skillsConfig.getPassword());
             HttpEntity request = new HttpEntity<>(userInfoRequest, new HttpHeaders());
             restTemplate.put(url, request);
-            log.info("\n-----------------\nCreated User:\n  email=[" + username + "]\n  password=[" + userInfoRequest.getPassword() + "]\n----------------");
+            log.info("Created User: email=[{}], password=[{}]", username, userInfoRequest.getPassword());
         } else {
-            log.info("User [" + username + "] already exists");
+            log.debug("User [{}] already exists", username);
         }
     }
 
@@ -461,7 +657,7 @@ public class InitSkillServiceWithData {
             // grand root to additional root users
             restTemplate = restTemplateFactory.getTemplateWithAuth();
             for (String additionalUser : skillsConfig.getAdditionalRootUsers()) {
-                restTemplate.put(url + "/root/addRoot/"+additionalUser, null);
+                restTemplate.put(url + "/root/addRoot/" + additionalUser, null);
                 log.info("\n-----------------\nCreated Additional Root User:\n  email=[" + additionalUser + "]\n  password=[" + userInfoRequest.getPassword() + "]\n----------------");
             }
         }

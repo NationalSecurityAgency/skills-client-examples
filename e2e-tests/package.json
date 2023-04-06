@@ -21,7 +21,7 @@
     "ng:start": "cd ../ng-example && mkdir -p ./target/logs && npm run start > ./target/logs/ng.out &",
     "ng:start:ci": "npm run ng:start &",
     "ng:wait": "npx wait-on -t 80000 http://localhost:4200",
-    "skills-service:start": "mkdir -p ./target/logs && java -jar ../skills-service*.jar > ./target/logs/skills-service.out &",
+    "skills-service:start": "mkdir -p ./target/logs && java -Dspring.datasource.url=jdbc:postgresql://localhost:5432/skills -Dspring.datasource.username=postgres -Dspring.datasource.password=skillsPassword -jar ../skills-service*.jar > ./target/logs/skills-service.out &",
     "skills-service:start:ci": "npm run skills-service:start &",
     "skills-service:wait": "npx wait-on -t 80000 http://localhost:8080",
     "java-backend-example:start": "mkdir -p ./target/logs && java -jar ../java-backend-example/target/java-backend-example*.jar > ./target/logs/java-backend-example.out &",
