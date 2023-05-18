@@ -74,7 +74,7 @@ public class InitSkillServiceWithData {
         List<Project> projects = sampleDatasetLoader.getProjects();
         projectLoop:
         for (Project project : projects) {
-            if (rest.getForEntity(serviceUrl + "/app/projects", String.class).getBody().contains(project.getName())) {
+            if (rest.getForEntity(serviceUrl + "/app/projects", String.class).getBody().contains(project.getId())) {
                 log.info("Project [" + project.getName() + "] already exists!");
                 break projectLoop;
             }
@@ -168,7 +168,7 @@ public class InitSkillServiceWithData {
         String skillId = quizId + "Skill";
         SkillRequest skillRequest = new SkillRequest();
         skillRequest.setName(quizName);
-        skillRequest.setDescription("Take a `" + quizName + "` and earn points!!");
+        skillRequest.setDescription(setDescPrefix("Take a `" + quizName + "` and earn points!!"));
         skillRequest.setSelfReportingType("Quiz");
         skillRequest.setPointIncrement(100);
         skillRequest.setNumPerformToCompletion(1);
@@ -184,16 +184,16 @@ public class InitSkillServiceWithData {
         for (Survey survey : surveys) {
             String surveyId = survey.getSurveyName().replaceAll(" ", "").replaceAll("[#\\?]", "");
             surveyIds.add(surveyId);
-            post(rest, serviceUrl + "/app/quiz-definitions/" + surveyId, new QuizDefRequest(survey.getSurveyName(), survey.getDescription(), "Survey"));
+            post(rest, serviceUrl + "/app/quiz-definitions/" + surveyId, new QuizDefRequest(survey.getSurveyName(), setDescPrefix(survey.getDescription()), "Survey"));
             for (SurveyQuestion q : survey.getQuestions()) {
                 String questionUrl = serviceUrl + "/admin/quiz-definitions/" + surveyId + "/create-question";
                 QuizQuestionDefRequest questionDefRequest = new QuizQuestionDefRequest();
-                questionDefRequest.setQuestion(q.getQuestion());
+                questionDefRequest.setQuestion(setDescPrefix(q.getQuestion()));
                 questionDefRequest.setQuestionType(q.getType());
                 List<QuizAnswerDefRequest> answers = new ArrayList<>();
                 if (q.getAnswers() != null && q.getAnswers().size() > 0) {
                     for (String a : q.getAnswers()){
-                        answers.add(new QuizAnswerDefRequest(a, false));
+                        answers.add(new QuizAnswerDefRequest(setDescPrefix(a), false));
                     }
                 }
                 questionDefRequest.setAnswers(answers);
@@ -213,15 +213,15 @@ public class InitSkillServiceWithData {
         for (Quiz quiz : quizzes) {
             String quizId = quiz.getQuizName().replaceAll(" ", "").replaceAll("#", "");
             quizIds.add(quizId);
-            post(rest, serviceUrl + "/app/quiz-definitions/" + quizId, new QuizDefRequest(quiz.getQuizName(), quiz.getDescription()));
+            post(rest, serviceUrl + "/app/quiz-definitions/" + quizId, new QuizDefRequest(quiz.getQuizName(), setDescPrefix(quiz.getDescription())));
             for (Question q : quiz.getQuestions()) {
                 String questionUrl = serviceUrl + "/admin/quiz-definitions/" + quizId + "/create-question";
                 QuizQuestionDefRequest questionDefRequest = new QuizQuestionDefRequest();
-                questionDefRequest.setQuestion(q.getQuestion());
+                questionDefRequest.setQuestion(setDescPrefix(q.getQuestion()));
                 questionDefRequest.setQuestionType("SingleChoice");
                 List<QuizAnswerDefRequest> answers = new ArrayList<>();
                 for (Answer a : q.getAnswers()){
-                    answers.add(new QuizAnswerDefRequest(a.getText(), a.isCorrect()));
+                    answers.add(new QuizAnswerDefRequest(setDescPrefix(a.getText()), a.isCorrect()));
                 }
                 questionDefRequest.setAnswers(answers);
                 post(rest, questionUrl, questionDefRequest);
@@ -521,7 +521,7 @@ public class InitSkillServiceWithData {
         }
         List<String> userIds = new ArrayList<>();
         for (int i = 0; i < numUsers; i++) {
-            userIds.add("User" + i);
+            userIds.add("uid" + i);
         }
         userIds.add(getCurrentUserId());
         userIds.addAll(skillsConfig.getAdditionalRootUsers());
