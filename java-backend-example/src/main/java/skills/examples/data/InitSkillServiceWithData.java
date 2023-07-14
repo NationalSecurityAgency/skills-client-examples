@@ -102,15 +102,14 @@ public class InitSkillServiceWithData {
         }
 
         assignCrossProjectDependency(rest, "shows", "MarvelsAgentsofSHIELD", "movies", "TheAvengers");
+        assignDependency(rest, "movies", "TheAvengers", "DespicableMeCollection");
+        assignDependency(rest, "movies", "DespicableMeCollection", "TheTwilightCollection");
         assignSeriesDependencies(rest, "movies", new ArrayList<>(Arrays.asList(
                 "HarryPotterandthePhilosophersStone",
                 "HarryPotterandtheChamberofSecrets",
                 "HarryPotterandthePrisonerofAzkaban",
                 "HarryPotterandtheGobletofFire",
-                "HarryPotterandtheOrderofthePhoenix",
-                "HarryPotterandtheHalfBloodPrince",
-                "HarryPotterandtheDeathlyHallowsPart1",
-                "HarryPotterandtheDeathlyHallowsPart2"))
+                "HarryPotterandtheOrderofthePhoenix"))
         );
         if (skillsConfig.getCreateRootAccount()) {
             addGlobalBadge(rest, serviceUrl, 2);
@@ -496,15 +495,16 @@ public class InitSkillServiceWithData {
 
     private void assignDependency(RestTemplate rest, String projectId, String fromSkillId, String toSkillId) {
         String serviceUrl = skillsConfig.getServiceUrl();
-        post(rest, serviceUrl + "/admin/projects/" + projectId + "/skills/" + fromSkillId + "/dependency/" + toSkillId);
-        log.info("Assigned project (" + projectId + ") dependency: " + fromSkillId + " -> " + toSkillId);
+        String endpoint = "/admin/projects/" + projectId + "/" + fromSkillId + "/prerequisite/" + projectId + "/" + toSkillId;
+        log.info("Assigning project (" + projectId + ") dependency: " + fromSkillId + " -> " + toSkillId + " (" + endpoint + ")");
+        post(rest, serviceUrl + endpoint);
     }
 
     private void assignCrossProjectDependency(RestTemplate rest, String fromProjId, String fromSkillId, String toProjId, String toSkillId) {
         String serviceUrl = skillsConfig.getServiceUrl();
         // share skill with other project and then assign cross project dependency
         post(rest, serviceUrl + "/admin/projects/" + fromProjId + "/skills/" + fromSkillId + "/shared/projects/" + toProjId);
-        post(rest, serviceUrl + "/admin/projects/" + toProjId + "/skills/" + toSkillId + "/dependency/projects/" + fromProjId + "/skills/" + fromSkillId);
+        post(rest, serviceUrl + "/admin/projects/" + toProjId + "/" + toSkillId + "/prerequisite/" + fromProjId + "/" + fromSkillId);
         log.info("Assigned cross-project dependency: " + fromProjId + ":" + fromSkillId + " -> " + toProjId + ":" + toSkillId);
     }
 
