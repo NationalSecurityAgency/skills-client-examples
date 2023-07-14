@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.6</version>
+        <version>2.4.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>skill-tree</groupId>
     <artifactId>java-backend-example</artifactId>
-    <version>1.16.0-SNAPSHOT-SNAPSHOT</version>
+    <version>1.6.0</version>
     <name>java-backend-example</name>
     <description>SkillTree Backend example using Spring Boot</description>
 
@@ -24,8 +24,9 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents.client5</groupId>
-            <artifactId>httpclient5</artifactId>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.13</version>
         </dependency>
 
         <dependency>
@@ -88,7 +89,6 @@
                                 <licenseMerge>The 3-Clause BSD License|New BSD License</licenseMerge>
                                 <licenseMerge>Eclipse Public License - Version 1.0|Eclipse Public License - v 1.0</licenseMerge>
                                 <licenseMerge>MIT License|The MIT License</licenseMerge>
-                                <licenseMerge>MIT License|MIT</licenseMerge>
                                 <licenseMerge>The GNU General Public License (GPL) Version 2 with the Classpath Exception|GPL2 w/ CPE</licenseMerge>
                             </licenseMerges>
                         </configuration>
