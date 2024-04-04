@@ -34,7 +34,7 @@ import skills.examples.data.serviceResponseModel.*;
 import skills.examples.utils.RestTemplateFactory;
 import skills.examples.utils.SkillsConfig;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;

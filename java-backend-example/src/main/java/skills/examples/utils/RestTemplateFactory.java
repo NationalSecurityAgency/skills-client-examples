@@ -15,17 +15,17 @@
  */
 package skills.examples.utils;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.ssl.SSLContexts;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
+import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
+import org.apache.hc.core5.http.config.RegistryBuilder;
+import org.apache.hc.core5.ssl.SSLContexts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -74,14 +74,16 @@ public class RestTemplateFactory {
             null,
                     allowAllHosts);
 
+
             PoolingHttpClientConnectionManager poolingHttpClientConnectionManager =
                     new PoolingHttpClientConnectionManager(RegistryBuilder.<ConnectionSocketFactory>create()
                             .register("http", PlainConnectionSocketFactory.getSocketFactory())
                             .register("https", sslConnectionSocketFactory).build());
+
             HttpClient httpClient = HttpClients.custom()
-                    .setSSLHostnameVerifier(new NoopHostnameVerifier())
+//                    .setSSLHostnameVerifier(new NoopHostnameVerifier())
                     .useSystemProperties()
-                    .setSSLContext(sslContext)
+//                    .setSSLContext(sslContext)
                     .setConnectionManager(poolingHttpClientConnectionManager)
                     .build();
             HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
@@ -94,7 +96,7 @@ public class RestTemplateFactory {
 
     private ClientHttpRequestFactory getHttpRequestFactory() {
         HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-        HttpClient httpClient = HttpClientBuilder.create().setSSLHostnameVerifier(new AllowAllHostnameVerifier()).build();
+        HttpClient httpClient = HttpClientBuilder.create().build(); //.setSSLHostnameVerifier(new NoopHostnameVerifier()).build();
         clientHttpRequestFactory.setHttpClient(httpClient);
         return clientHttpRequestFactory;
     }
