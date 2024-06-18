@@ -35,6 +35,8 @@ import skills.examples.utils.RestTemplateFactory;
 import skills.examples.utils.SkillsConfig;
 
 import jakarta.annotation.PostConstruct;
+import skills.examples.utils.StatefulRestTemplateInterceptor;
+
 import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
@@ -626,6 +628,8 @@ public class InitSkillServiceWithData {
     private void createUser(String url, String username) {
         if (!doesUserExist(username)) {
             RestTemplate restTemplate = new RestTemplate();
+            restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
+            ResponseEntity<String> userExistsResponse = restTemplate.getForEntity(skillsConfig.getServiceUrl() + "/app/users/validExistingDashboardUserId/{userId}", String.class, skillsConfig.getUsername());
             UserInfoRequest userInfoRequest = new UserInfoRequest("Bill", "Gosling", username, skillsConfig.getPassword());
             HttpEntity request = new HttpEntity<>(userInfoRequest, new HttpHeaders());
             restTemplate.put(url, request);
@@ -638,17 +642,22 @@ public class InitSkillServiceWithData {
     private void createRootAccount() {
         String url = skillsConfig.getServiceUrl();
         RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
+        ResponseEntity<String> userExistsResponse = restTemplate.getForEntity(skillsConfig.getServiceUrl() + "/app/users/validExistingDashboardUserId/{userId}", String.class, skillsConfig.getUsername());
         if (skillsConfig.isPkiMode()) {
             restTemplate.put(url + "/grantFirstRoot", null);
             log.info("\n-----------------\nCreated Root User:\n  DN=[" + getDn() + "]\n----------------");
         } else {
+
 
             // create (optional) additional root users
             for (String additionalUser : skillsConfig.getAdditionalRootUsers()) {
                 createUser(skillsConfig.getServiceUrl() + "/createAccount", additionalUser);
             }
 
-            restTemplate.getForObject(url + "/logout", String.class);
+//            restTemplate.getForEntity(skillsConfig.getServiceUrl() + "/", String.class);
+//            ResponseEntity<String> userExistsResponse = restTemplate.getForEntity(skillsConfig.getServiceUrl() + "/app/users/validExistingDashboardUserId/{userId}", String.class, username)
+//            restTemplate.getForObject(url + "/logout", String.class);
             UserInfoRequest userInfoRequest = new UserInfoRequest("Bill", "Gosling", skillsConfig.getUsername(), skillsConfig.getPassword());
             HttpEntity request = new HttpEntity<>(userInfoRequest, new HttpHeaders());
             restTemplate.put(url + "/createRootAccount", request);

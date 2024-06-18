@@ -37,6 +37,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import java.util.Collections;
 
 @Component
 public class RestTemplateFactory {
@@ -52,6 +53,7 @@ public class RestTemplateFactory {
     }
     public RestTemplate getTemplateWithAuth(String username) {
         RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
         if (!skillsConfig.getAuthMode().equalsIgnoreCase("pki")) {
             // must configure HttpComponentsClientHttpRequestFactory as SpringTemplate does
             // not by default keeps track of session
@@ -61,6 +63,9 @@ public class RestTemplateFactory {
             MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
             params.add("username", username);
             params.add("password", skillsConfig.getPassword());
+
+            restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
+            restTemplate.getForEntity(skillsConfig.getServiceUrl() + "/", String.class);
 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
             ResponseEntity<String> response = restTemplate.postForEntity(skillsConfig.getServiceUrl() + "/performLogin", request, String.class);
@@ -89,6 +94,7 @@ public class RestTemplateFactory {
             HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
             requestFactory.setHttpClient(httpClient);
             restTemplate = new RestTemplate(requestFactory);
+            restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
 
         }
         return restTemplate;
