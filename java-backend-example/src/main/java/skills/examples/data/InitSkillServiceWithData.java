@@ -655,9 +655,7 @@ public class InitSkillServiceWithData {
                 createUser(skillsConfig.getServiceUrl() + "/createAccount", additionalUser);
             }
 
-//            restTemplate.getForEntity(skillsConfig.getServiceUrl() + "/", String.class);
-//            ResponseEntity<String> userExistsResponse = restTemplate.getForEntity(skillsConfig.getServiceUrl() + "/app/users/validExistingDashboardUserId/{userId}", String.class, username)
-//            restTemplate.getForObject(url + "/logout", String.class);
+            restTemplate.postForLocation(url + "/logout", null);
             UserInfoRequest userInfoRequest = new UserInfoRequest("Bill", "Gosling", skillsConfig.getUsername(), skillsConfig.getPassword());
             HttpEntity request = new HttpEntity<>(userInfoRequest, new HttpHeaders());
             restTemplate.put(url + "/createRootAccount", request);
