@@ -50,14 +50,15 @@ jobs:
           - 5432:5432
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
-    - uses: actions/setup-node@v2-beta
+    - uses: actions/setup-node@v4
       with:
-        node-version: '12'
+        node-version: '20.17.0'
 
-    - uses: actions/setup-java@v1
+    - uses: actions/setup-java@v4
       with:
+        distribution: 'temurin'
         java-version: '19' # The JDK version to make available on the path.
 
     - name: Print Versions
@@ -66,7 +67,7 @@ jobs:
         java -version
 
     - name: Cache local Maven repository
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -133,15 +134,16 @@ jobs:
           - 5432:5432
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
-    - uses: actions/setup-node@v2-beta
+    - uses: actions/setup-node@v4
       with:
-        node-version: '12'
+        node-version: '20.17.0'
 
-    - uses: actions/setup-java@v1
+    - uses: actions/setup-java@v4
       with:
-        java-version: '11.X.X' # The JDK version to make available on the path.
+        distribution: 'temurin'
+        java-version: '19' # The JDK version to make available on the path.
 
     - name: Print Versions
       run: |
