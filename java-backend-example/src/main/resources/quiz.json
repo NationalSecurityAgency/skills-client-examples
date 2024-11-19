@@ -564,5 +564,33 @@
         ]
       }
     ]
+  },
+  {
+    "quizName": "Chess Insight",
+    "description": "Chess questions demonstrating how `Input Text` question type works",
+    "questions": [
+      {
+        "question": "Please describe 3 basic goals during the chess opening?",
+        "questionType": "TextInput",
+        "answers": []
+      },
+      {
+        "question": "What is the overall goal of a chess game?",
+        "answers": [
+          {
+            "text": "Stalemate",
+            "correct": false
+          },
+          {
+            "text": "Checkmate",
+            "correct": true
+          },
+          {
+            "text": "En passant",
+            "correct": false
+          }
+        ]
+      }
+    ]
   }
 ]

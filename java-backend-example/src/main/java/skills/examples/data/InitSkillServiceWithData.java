@@ -118,6 +118,8 @@ public class InitSkillServiceWithData {
         }
 
         createQuizzesAndSurveys(rest);
+
+        createAdminGroups(rest);
     }
 
     private void createQuizzesAndSurveys(RestTemplate rest) {
@@ -219,7 +221,11 @@ public class InitSkillServiceWithData {
                 String questionUrl = serviceUrl + "/admin/quiz-definitions/" + quizId + "/create-question";
                 QuizQuestionDefRequest questionDefRequest = new QuizQuestionDefRequest();
                 questionDefRequest.setQuestion(setDescPrefix(q.getQuestion()));
-                questionDefRequest.setQuestionType("SingleChoice");
+                if (q.getQuestionType() != null) {
+                    questionDefRequest.setQuestionType(q.getQuestionType());
+                } else {
+                    questionDefRequest.setQuestionType("SingleChoice");
+                }
                 List<QuizAnswerDefRequest> answers = new ArrayList<>();
                 for (Answer a : q.getAnswers()){
                     answers.add(new QuizAnswerDefRequest(setDescPrefix(a.getText()), a.isCorrect()));
@@ -287,21 +293,43 @@ public class InitSkillServiceWithData {
         int index = 0;
         for (QuizQuestionInfoResponse question : quizInfoResponse.getQuestions()) {
             index++;
-            boolean failIfPassNotTrue = index % 2 == 0;
-            if (pass || !failIfPassNotTrue) {
-                List<QuizAnswerOptionsInfoResponse> correctAnswers = question.getAnswers()
-                        .stream().filter(answer -> answer.getIsCorrect()).collect(Collectors.toList());
-                for (QuizAnswerOptionsInfoResponse correctAnswer : correctAnswers) {
-                    post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt/" + quizAttemptStartResult.getId() + "/answers/" + correctAnswer.getId(), new QuizReportAnswerReq());
-                }
+
+            if (question.getQuestionType().equalsIgnoreCase("TextInput")) {
+                String answerText = "-Develop your pieces\n-Control Center\n-Castle";
+                post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt/" + quizAttemptStartResult.getId() + "/answers/" + question.getAnswers().get(0).getId(), new QuizReportAnswerReq(answerText));
             } else {
-                List<QuizAnswerOptionsInfoResponse> wrongAnswers = question.getAnswers()
-                        .stream().filter(answer -> !answer.getIsCorrect()).collect(Collectors.toList());
-                post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt/" + quizAttemptStartResult.getId() + "/answers/" + wrongAnswers.get(0).getId(), new QuizReportAnswerReq());
+                boolean failIfPassNotTrue = index % 2 == 0;
+                if (pass || !failIfPassNotTrue) {
+                    List<QuizAnswerOptionsInfoResponse> correctAnswers = question.getAnswers()
+                            .stream().filter(answer -> answer.getIsCorrect()).collect(Collectors.toList());
+                    for (QuizAnswerOptionsInfoResponse correctAnswer : correctAnswers) {
+                        post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt/" + quizAttemptStartResult.getId() + "/answers/" + correctAnswer.getId(), new QuizReportAnswerReq());
+                    }
+                } else {
+                    List<QuizAnswerOptionsInfoResponse> wrongAnswers = question.getAnswers()
+                            .stream().filter(answer -> !answer.getIsCorrect()).collect(Collectors.toList());
+                    post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt/" + quizAttemptStartResult.getId() + "/answers/" + wrongAnswers.get(0).getId(), new QuizReportAnswerReq());
+                }
             }
         }
 
         post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt/" + quizAttemptStartResult.getId() + "/complete");
+    }
+
+    private void createAdminGroups(RestTemplate adminUserRest) {
+        post(adminUserRest, skillsConfig.getServiceUrl() + "/app/admin-group-definitions/FancyGroup",
+                new AdminGroupRequest("FancyGroup", "Fancy Group"));
+        List<String> groupMembers = Arrays.asList("groupUser1@email.org", "groupUser2@email.org");
+        for (String userId: groupMembers) {
+            createUser(skillsConfig.getServiceUrl() + "/createAccount", userId);
+            post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/users/" + userId + "/roles/ROLE_ADMIN_GROUP_MEMBER");
+        }
+
+        post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/projects/shows");
+        post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/projects/movies");
+        post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/quizzes/ChessInsight");
+        post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/quizzes/TriviaChallenge1");
+        post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/quizzes/TriviaChallenge3");
     }
 
     private <T> T parseStrRes(String res, Class<T> expectedClass) {
