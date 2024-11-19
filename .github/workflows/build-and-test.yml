@@ -103,7 +103,7 @@ jobs:
 
     - name: upload result artifacts
       if: ${{ always() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: result artifacts - with jar
         path: |
@@ -151,7 +151,7 @@ jobs:
         java -version
 
     - name: Cache local Maven repository
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -191,7 +191,7 @@ jobs:
 
     - name: upload result artifacts
       if: ${{ always() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: result artifacts - with docker
         path: |
