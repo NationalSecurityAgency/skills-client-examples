@@ -321,7 +321,9 @@ public class InitSkillServiceWithData {
                 new AdminGroupRequest("FancyGroup", "Fancy Group"));
         List<String> groupMembers = skillsConfig.getAdminGroupMembers();
         for (String userId: groupMembers) {
-            createUser(skillsConfig.getServiceUrl() + "/createAccount", userId);
+            if (!skillsConfig.isPkiMode()) {
+                createUser(skillsConfig.getServiceUrl() + "/createAccount", userId);
+            }
             post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/users/" + userId + "/roles/ROLE_ADMIN_GROUP_MEMBER");
         }
 
