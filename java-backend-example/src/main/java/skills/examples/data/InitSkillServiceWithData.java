@@ -319,7 +319,7 @@ public class InitSkillServiceWithData {
     private void createAdminGroups(RestTemplate adminUserRest) {
         post(adminUserRest, skillsConfig.getServiceUrl() + "/app/admin-group-definitions/FancyGroup",
                 new AdminGroupRequest("FancyGroup", "Fancy Group"));
-        List<String> groupMembers = Arrays.asList("user5@email.com", "user6@email.org");
+        List<String> groupMembers = skillsConfig.getAdminGroupMembers();
         for (String userId: groupMembers) {
             createUser(skillsConfig.getServiceUrl() + "/createAccount", userId);
             post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/users/" + userId + "/roles/ROLE_ADMIN_GROUP_MEMBER");
