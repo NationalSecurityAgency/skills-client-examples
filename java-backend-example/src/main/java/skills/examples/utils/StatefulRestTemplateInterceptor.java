@@ -24,6 +24,7 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class StatefulRestTemplateInterceptor implements ClientHttpRequestInterceptor {
@@ -49,8 +50,11 @@ public class StatefulRestTemplateInterceptor implements ClientHttpRequestInterce
         HttpHeaders headers = response.getHeaders();
 
         List<String> returnedCookies = headers.getOrEmpty(HttpHeaders.SET_COOKIE);
-        if (!returnedCookies.isEmpty() && cookies == null) {
-            cookies = returnedCookies;
+        if (!returnedCookies.isEmpty()) {
+            if (cookies == null) {
+                cookies = new ArrayList<>();
+            }
+            cookies.addAll(returnedCookies);
             log.info("Setting cookies to {}", returnedCookies);
         }
         if (!returnedCookies.isEmpty() && xsrfToken == null) {
