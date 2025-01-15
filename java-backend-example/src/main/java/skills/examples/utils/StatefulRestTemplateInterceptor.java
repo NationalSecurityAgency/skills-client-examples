@@ -53,18 +53,24 @@ public class StatefulRestTemplateInterceptor implements ClientHttpRequestInterce
         if (!returnedCookies.isEmpty()) {
             if (cookies == null) {
                 cookies = new ArrayList<>();
-            } else if (containsJSessionId(returnedCookies)) {
-                cookies.removeIf(str -> str.startsWith("JSESSIONID="));
+            } else {
+                for(String cookie : returnedCookies) {
+                    String cookieName = getPrefixBeforeEquals(cookie);
+                    cookies.removeIf(str -> str.startsWith(cookieName));
+                }
             }
             cookies.addAll(returnedCookies);
             log.debug("Adding new cookies {}, to existing cookies {}", returnedCookies, cookies);
-        }
-        if (!returnedCookies.isEmpty() && xsrfToken == null) {
+
             response.getHeaders().get(HttpHeaders.SET_COOKIE).stream().filter(cookie -> cookie.startsWith("XSRF-TOKEN")).findAny().ifPresent(cookie -> xsrfCookie = cookie);
             if (xsrfCookie != null) {
                 xsrfToken = xsrfCookie.substring(xsrfCookie.indexOf('=') + 1, xsrfCookie.indexOf(';'));
                 log.debug("Response: [{}], set xsrfToken to [{}]", request.getURI(), xsrfToken);
+            } else {
+                xsrfToken = null;
             }
+        } else {
+            xsrfToken = null;
         }
         return response;
     }
@@ -75,6 +81,14 @@ public class StatefulRestTemplateInterceptor implements ClientHttpRequestInterce
             }
         }
         return false;
+    }
+    public static String getPrefixBeforeEquals(String str) {
+        int equalsIndex = str.indexOf('=');
+        if (equalsIndex != -1) {
+            return str.substring(0, equalsIndex);
+        } else {
+            return str;
+        }
     }
 
 }
