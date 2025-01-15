@@ -53,9 +53,11 @@ public class StatefulRestTemplateInterceptor implements ClientHttpRequestInterce
         if (!returnedCookies.isEmpty()) {
             if (cookies == null) {
                 cookies = new ArrayList<>();
+            } else if (containsJSessionId(returnedCookies)) {
+                cookies.removeIf(str -> str.startsWith("JSESSIONID="));
             }
             cookies.addAll(returnedCookies);
-            log.info("Setting cookies to {}", returnedCookies);
+            log.debug("Adding new cookies {}, to existing cookies {}", returnedCookies, cookies);
         }
         if (!returnedCookies.isEmpty() && xsrfToken == null) {
             response.getHeaders().get(HttpHeaders.SET_COOKIE).stream().filter(cookie -> cookie.startsWith("XSRF-TOKEN")).findAny().ifPresent(cookie -> xsrfCookie = cookie);
@@ -66,4 +68,13 @@ public class StatefulRestTemplateInterceptor implements ClientHttpRequestInterce
         }
         return response;
     }
+    public static boolean containsJSessionId(List<String> list) {
+        for (String str : list) {
+            if (str.startsWith("JSESSIONID=")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
