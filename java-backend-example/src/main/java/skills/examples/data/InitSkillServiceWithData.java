@@ -226,6 +226,9 @@ public class InitSkillServiceWithData {
                 } else {
                     questionDefRequest.setQuestionType("SingleChoice");
                 }
+                if (q.getAnswerHint() != null) {
+                    questionDefRequest.setAnswerHint(q.getAnswerHint());
+                }
                 List<QuizAnswerDefRequest> answers = new ArrayList<>();
                 for (Answer a : q.getAnswers()){
                     answers.add(new QuizAnswerDefRequest(setDescPrefix(a.getText()), a.isCorrect()));
