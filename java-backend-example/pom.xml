@@ -10,7 +10,7 @@
     </parent>
     <groupId>skill-tree</groupId>
     <artifactId>java-backend-example</artifactId>
-    <version>1.15.0</version>
+    <version>1.16.0-SNAPSHOT-SNAPSHOT</version>
     <name>java-backend-example</name>
     <description>SkillTree Backend example using Spring Boot</description>
 
