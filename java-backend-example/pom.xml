@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.3</version>
+        <version>3.3.6</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>skill-tree</groupId>
     <artifactId>java-backend-example</artifactId>
-    <version>1.8.0-SNAPSHOT</version>
+    <version>1.11.0-SNAPSHOT</version>
     <name>java-backend-example</name>
     <description>SkillTree Backend example using Spring Boot</description>
 

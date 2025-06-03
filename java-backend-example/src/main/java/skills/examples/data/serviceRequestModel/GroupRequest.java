@@ -21,7 +21,7 @@ public class GroupRequest {
     private String skillId;
     private String subjectId;
     private String type = "SkillsGroup";
-    private String enabled = "false";
+    private String enabled = "true";
     private Integer numSkillsRequired = -1;
 
     public String getName() {

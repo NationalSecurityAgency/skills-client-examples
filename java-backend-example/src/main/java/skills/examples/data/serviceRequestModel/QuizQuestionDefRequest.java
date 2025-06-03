@@ -20,6 +20,7 @@ import java.util.List;
 public class QuizQuestionDefRequest {
     private String question;
     private String questionType;
+    private String answerHint;
     private List<QuizAnswerDefRequest> answers;
 
     public String getQuestion() {
@@ -38,6 +39,14 @@ public class QuizQuestionDefRequest {
         this.questionType = questionType;
     }
 
+    public String getAnswerHint() {
+        return answerHint;
+    }
+
+    public void setAnswerHint(String answerHint) {
+        this.answerHint = answerHint;
+    }
+
     public List<QuizAnswerDefRequest> getAnswers() {
         return answers;
     }
@@ -51,6 +60,7 @@ public class QuizQuestionDefRequest {
         return "QuizQuestionDefRequest{" +
                 "question='" + question + '\'' +
                 ", questionType='" + questionType + '\'' +
+                ", answerHint='" + answerHint + '\'' +
                 ", answers=" + answers +
                 '}';
     }
