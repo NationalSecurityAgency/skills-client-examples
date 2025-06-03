@@ -15,27 +15,58 @@
  */
 package skills.examples.data;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import skills.examples.data.model.Project;
+import skills.examples.data.model.Quiz;
+import skills.examples.data.model.Survey;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class SampleDatasetLoader {
 
-    @Value("classpath:movies.json")
-    Resource resourceFile;
+    @Value("classpath:projects.json")
+    Resource projectsResourceFile;
 
-    public Project getProject() {
+    @Value("classpath:quiz.json")
+    Resource quizResourceFile;
+
+    @Value("classpath:survey.json")
+    Resource surveyResourceFile;
+
+    public List<Project> getProjects() {
         ObjectMapper jsonMapper = new ObjectMapper();
         try {
-            Project project = jsonMapper.readValue(resourceFile.getURL(), Project.class);
-            return project;
+            List<Project> projects = jsonMapper.readValue(projectsResourceFile.getURL(), new TypeReference<List<Project>>() {});
+            return projects;
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load sample data", e);
+            throw new RuntimeException("Failed to load sample project data", e);
         }
     }
+
+    public List<Quiz> getQuizzes() {
+        ObjectMapper jsonMapper = new ObjectMapper();
+        try {
+            List<Quiz> quizzes = jsonMapper.readValue(quizResourceFile.getURL(), new TypeReference<List<Quiz>>() {});
+            return quizzes;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load quiz data", e);
+        }
+    }
+
+    public List<Survey> getSurveys() {
+        ObjectMapper jsonMapper = new ObjectMapper();
+        try {
+            List<Survey> surveys = jsonMapper.readValue(surveyResourceFile.getURL(), new TypeReference<List<Survey>>() {});
+            return surveys;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load survey data", e);
+        }
+    }
+
 }

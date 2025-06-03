@@ -23,6 +23,8 @@ public class SkillRequest {
     private Integer numMaxOccurrencesIncrementInterval = 1;
     private String description;
     private String helpUrl;
+    private String selfReportingType;
+    private String quizId;
 
     public String getName() {
         return name;
@@ -80,6 +82,22 @@ public class SkillRequest {
         this.helpUrl = helpUrl;
     }
 
+    public String getSelfReportingType() {
+        return selfReportingType;
+    }
+
+    public void setSelfReportingType(String selfReportingType) {
+        this.selfReportingType = selfReportingType;
+    }
+
+    public String getQuizId() {
+        return quizId;
+    }
+
+    public void setQuizId(String quizId) {
+        this.quizId = quizId;
+    }
+
     @Override
     public String toString() {
         return "SkillRequest{" +
@@ -90,8 +108,8 @@ public class SkillRequest {
                 ", numMaxOccurrencesIncrementInterval=" + numMaxOccurrencesIncrementInterval +
                 ", description='" + description + '\'' +
                 ", helpUrl='" + helpUrl + '\'' +
+                ", selfReportingType='" + selfReportingType + '\'' +
+                ", quizId='" + quizId + '\'' +
                 '}';
     }
 }
-
-

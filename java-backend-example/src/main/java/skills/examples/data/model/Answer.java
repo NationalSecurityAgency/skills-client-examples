@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2020 SkillTree
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,19 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package skills.examples.data.model;
 
-context('Examples Tests', () => {
+public class Answer {
 
-  beforeEach(() => {
-    cy.server().route('/api/users/user4@email.com/token').as('getToken')
-  })
+    private String text;
+    private boolean correct;
 
-  it('test pure js example', () => {
-    cy.visit('http://localhost:8092/')
-    cy.wait('@getToken')
-    cy.wrapIframe().contains('Overall Points');
+    public String getText() {
+        return text;
+    }
 
-    cy.get('button').contains('Report Skill').click()
-    cy.contains('"skillId": "IronMan"')
-  })
-})
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public boolean isCorrect() {
+        return correct;
+    }
+
+    public void setCorrect(boolean correct) {
+        this.correct = correct;
+    }
+
+    @Override
+    public String toString() {
+        return "Answer{" +
+                "text='" + text + '\'' +
+                ", correct=" + correct +
+                '}';
+    }
+}
