@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import skills.examples.data.model.Project;
+import skills.examples.data.model.Quiz;
+import skills.examples.data.model.Survey;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,15 +31,42 @@ import java.util.List;
 public class SampleDatasetLoader {
 
     @Value("classpath:projects.json")
-    Resource resourceFile;
+    Resource projectsResourceFile;
+
+    @Value("classpath:quiz.json")
+    Resource quizResourceFile;
+
+    @Value("classpath:survey.json")
+    Resource surveyResourceFile;
 
     public List<Project> getProjects() {
         ObjectMapper jsonMapper = new ObjectMapper();
         try {
-            List<Project> projects = jsonMapper.readValue(resourceFile.getURL(), new TypeReference<List<Project>>() {});
+            List<Project> projects = jsonMapper.readValue(projectsResourceFile.getURL(), new TypeReference<List<Project>>() {});
             return projects;
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load sample data", e);
+            throw new RuntimeException("Failed to load sample project data", e);
         }
     }
+
+    public List<Quiz> getQuizzes() {
+        ObjectMapper jsonMapper = new ObjectMapper();
+        try {
+            List<Quiz> quizzes = jsonMapper.readValue(quizResourceFile.getURL(), new TypeReference<List<Quiz>>() {});
+            return quizzes;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load quiz data", e);
+        }
+    }
+
+    public List<Survey> getSurveys() {
+        ObjectMapper jsonMapper = new ObjectMapper();
+        try {
+            List<Survey> surveys = jsonMapper.readValue(surveyResourceFile.getURL(), new TypeReference<List<Survey>>() {});
+            return surveys;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load survey data", e);
+        }
+    }
+
 }
