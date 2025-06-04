@@ -28,6 +28,7 @@ import org.springframework.web.client.RestTemplate;
 import skills.examples.data.SampleDatasetLoader;
 import skills.examples.utils.SecretHelper;
 import skills.examples.utils.SkillsConfig;
+import skills.examples.utils.StatefulRestTemplateInterceptor;
 
 import java.util.Arrays;
 
@@ -52,7 +53,7 @@ public class ControllerExample {
         String clientSecret = secretHelper.getSecret(clientId);
 
         RestTemplate oAuthRestTemplate = new RestTemplate();
-        oAuthRestTemplate.setInterceptors(Arrays.asList(new BasicAuthenticationInterceptor(clientId, clientSecret)));
+        oAuthRestTemplate.setInterceptors(Arrays.asList(new BasicAuthenticationInterceptor(clientId, clientSecret), new StatefulRestTemplateInterceptor()));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
