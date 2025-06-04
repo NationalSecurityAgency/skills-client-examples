@@ -15,32 +15,25 @@
  */
 package skills.examples.data.serviceRequestModel;
 
-import java.util.Date;
-
-public class BadgeRequest {
+public class QuizDefRequest {
     private String name;
     private String description;
-    private String iconClass;
-    private Boolean enabled;
 
-    // applies only to "gem" badges
-    Date startDate;
-    Date endDate;
+    private String type = "Quiz";
 
-    public BadgeRequest() {
+    public QuizDefRequest() {
+        super();
     }
 
-    public BadgeRequest(String name, String description, String iconClass) {
+    public QuizDefRequest(String name, String description) {
         this.name = name;
         this.description = description;
-        this.iconClass = iconClass;
     }
 
-    public BadgeRequest(String name, String description, String iconClass, Boolean enabled) {
+    public QuizDefRequest(String name, String description, String type) {
         this.name = name;
         this.description = description;
-        this.iconClass = iconClass;
-        this.enabled = enabled;
+        this.type = type;
     }
 
     public String getName() {
@@ -59,23 +52,19 @@ public class BadgeRequest {
         this.description = description;
     }
 
-    public String getIconClass() {
-        return iconClass;
+    public String getType() {
+        return type;
     }
 
-    public void setIconClass(String iconClass) {
-        this.iconClass = iconClass;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public Boolean getEnabled() { return enabled; }
-
-    public void setEnabled(Boolean enabled) { this.enabled = enabled; }
-
-    public Date getStartDate() { return startDate; }
-
-    public void setStartDate(Date startDate) { this.startDate = startDate; }
-
-    public Date getEndDate() { return endDate; }
-
-    public void setEndDate(Date endDate) { this.endDate = endDate; }
+    @Override
+    public String toString() {
+        return "QuizRequest{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

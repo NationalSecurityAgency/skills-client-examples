@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2020 SkillTree
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package skills.examples.data.serviceRequestModel;
 
-context('Examples Tests', () => {
+import java.util.List;
 
-  beforeEach(() => {
-    cy.server().route('/api/users/user4@email.com/token').as('getToken')
-  })
+public class SkillRejectionRequest {
+    List<Integer> skillApprovalIds;
+    String rejectionMessage;
 
-  it('test pure js example', () => {
-    cy.visit('http://localhost:8092/')
-    cy.wait('@getToken')
-    cy.wrapIframe().contains('Overall Points');
+    public List<Integer> getSkillApprovalIds() {
+        return skillApprovalIds;
+    }
+    public void setSkillApprovalIds(List<Integer> skillApprovalIds) {
+        this.skillApprovalIds = skillApprovalIds;
+    }
 
-    cy.get('button').contains('Report Skill').click()
-    cy.contains('"skillId": "IronMan"')
-  })
-})
+    public String getRejectionMessage() { return rejectionMessage; }
+    public void setRejectionMessage(String rejectionMessage) { this.rejectionMessage = rejectionMessage; }
+}

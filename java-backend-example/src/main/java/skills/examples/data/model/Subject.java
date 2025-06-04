@@ -21,7 +21,7 @@ public class Subject {
     private String id;
     private String name;
     private String iconClass;
-    private List<Movie> movies;
+    private List<Skill> skills;
 
     public String getName() {
         return name;
@@ -39,14 +39,6 @@ public class Subject {
         this.iconClass = iconClass;
     }
 
-    public List<Movie> getMovies() {
-        return movies;
-    }
-
-    public void setMovies(List<Movie> movies) {
-        this.movies = movies;
-    }
-
     public String getId() {
         return id;
     }
@@ -54,4 +46,8 @@ public class Subject {
     public void setId(String id) {
         this.id = id;
     }
+
+    public List<Skill> getSkills() { return skills; }
+
+    public void setSkills(List<Skill> skills) { this.skills = skills; }
 }
