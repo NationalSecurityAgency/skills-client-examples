@@ -15,31 +15,22 @@
  */
 package skills.examples.data.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.List;
 
-public class Badge {
-    private String id;
-    private String name;
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Quiz {
+    private String quizName;
     private String description;
-    private String iconClass;
-    private List<String> skillIds;
-    private boolean gem = false;
-    private boolean shouldAdminAchieve = false;
+    private List<Question> questions;
 
-    public String getId() {
-        return id;
+    public String getQuizName() {
+        return quizName;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setQuizName(String quizName) {
+        this.quizName = quizName;
     }
 
     public String getDescription() {
@@ -50,23 +41,11 @@ public class Badge {
         this.description = description;
     }
 
-    public String getIconClass() {
-        return iconClass;
+    public List<Question> getQuestions() {
+        return questions;
     }
 
-    public void setIconClass(String iconClass) {
-        this.iconClass = iconClass;
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
     }
-
-    public List<String> getSkillIds() {
-        return skillIds;
-    }
-
-    public void setSkillIds(List<String> skillIds) {
-        this.skillIds = skillIds;
-    }
-
-    public boolean isGem() { return gem; }
-
-    public boolean isShouldAdminAchieve() { return shouldAdminAchieve; }
 }

@@ -15,16 +15,25 @@
  */
 package skills.examples.data.model;
 
-import java.util.List;
-
-public class Badge {
+public class Skill {
     private String id;
     private String name;
     private String description;
-    private String iconClass;
-    private List<String> skillIds;
-    private boolean gem = false;
-    private boolean shouldAdminAchieve = false;
+    // optional - valid values are "Approval" or "HonorSystem"
+    private String selfReportingType;
+
+    public String getSelfReportingType() {
+        return selfReportingType;
+    }
+
+    public void setSelfReportingType(String selfReportingType) {
+        this.selfReportingType = selfReportingType;
+    }
+
+    public Boolean isSelfReporting() {
+        return selfReportingType != null && (selfReportingType.equals("Approval") || selfReportingType.equals("HonorSystem"));
+    }
+
 
     public String getId() {
         return id;
@@ -50,23 +59,13 @@ public class Badge {
         this.description = description;
     }
 
-    public String getIconClass() {
-        return iconClass;
+    public String getHelpUrl() {
+        return helpUrl;
     }
 
-    public void setIconClass(String iconClass) {
-        this.iconClass = iconClass;
+    public void setHelpUrl(String helpUrl) {
+        this.helpUrl = helpUrl;
     }
 
-    public List<String> getSkillIds() {
-        return skillIds;
-    }
-
-    public void setSkillIds(List<String> skillIds) {
-        this.skillIds = skillIds;
-    }
-
-    public boolean isGem() { return gem; }
-
-    public boolean isShouldAdminAchieve() { return shouldAdminAchieve; }
+    private String helpUrl;
 }

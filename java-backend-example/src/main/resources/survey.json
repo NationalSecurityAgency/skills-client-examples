@@ -1,0 +1,41 @@
+[{
+  "surveyName": "Coding Language and Frameworks Preferences",
+  "description": "Please share some of your thoughts and preferences regarding the software development industry.",
+  "questions": [{
+    "question": "What are **your favorite** programming languages?",
+    "type": "MultipleChoice",
+    "answers": ["Python", "Java", "JavaScript", "C#", "C/C++", "PHP", "Swift", "Objective-C", "Other"]
+  }, {
+    "question": "What is your favorite software `Integrated Development Environment (IDE)`?",
+    "type": "SingleChoice",
+    "answers": ["NetBeans", "IntelliJ IDEA", "Visual Studio", "Eclipse", "PyCharm", "Atom", "Xcode", "Other"]
+  }, {
+    "question": "What is the funniest programming interview question that you were asked?",
+    "type": "TextInput",
+    "answers": []
+  }, {
+    "question": "Which of these `Web` application frameworks have you <strong>worked with</strong>?",
+    "type": "MultipleChoice",
+    "answers": ["Angular", "Vue.js", "Svelte", "React", "Gatsby", "Express.js"]
+  }, {
+    "question": "Do you prefer curly brace on **the same line**\n\n```\nif (someCondidion) { \n```\n\nOR on **a new line**\n\n```\nif (someCondidion) \n{ \n```",
+    "type": "SingleChoice",
+    "answers": ["same line", "new line"]
+  }]
+}, {
+  "surveyName": "Which TV character are you?",
+  "description": "Pick which famous TV character that you are most alike!",
+  "questions": [{
+    "question": "Which `Golden Girl` are you from The Golden Girls TV series?",
+    "type": "SingleChoice",
+    "answers": ["Blanche Devereaux", "Sophia Petrillo", "Rose Nylund", "Dorothy Zbornak"]
+  }, {
+    "question": "Which `Friend` are you from the american sitcom called Friends?",
+    "type": "SingleChoice",
+    "answers": ["Rachel", "Phoebe", "Ross", "Monica", "Chandler", "Joey"]
+  }, {
+    "question": "Which `Seinfeld` character are  you?",
+    "type": "SingleChoice",
+    "answers": ["Kramer", "George Costanza", "Elaine Benes", "Newman", "Jerry Seinfeld"]
+  }]
+}]

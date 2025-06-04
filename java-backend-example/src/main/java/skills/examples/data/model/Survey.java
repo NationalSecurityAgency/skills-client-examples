@@ -17,29 +17,17 @@ package skills.examples.data.model;
 
 import java.util.List;
 
-public class Badge {
-    private String id;
-    private String name;
+public class Survey {
+    private String surveyName;
     private String description;
-    private String iconClass;
-    private List<String> skillIds;
-    private boolean gem = false;
-    private boolean shouldAdminAchieve = false;
+    private List<SurveyQuestion> questions;
 
-    public String getId() {
-        return id;
+    public String getSurveyName() {
+        return surveyName;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setSurveyName(String surveyName) {
+        this.surveyName = surveyName;
     }
 
     public String getDescription() {
@@ -50,23 +38,20 @@ public class Badge {
         this.description = description;
     }
 
-    public String getIconClass() {
-        return iconClass;
+    public List<SurveyQuestion> getQuestions() {
+        return questions;
     }
 
-    public void setIconClass(String iconClass) {
-        this.iconClass = iconClass;
+    public void setQuestions(List<SurveyQuestion> questions) {
+        this.questions = questions;
     }
 
-    public List<String> getSkillIds() {
-        return skillIds;
+    @Override
+    public String toString() {
+        return "Survey{" +
+                "surveyName='" + surveyName + '\'' +
+                ", description='" + description + '\'' +
+                ", questions=" + questions +
+                '}';
     }
-
-    public void setSkillIds(List<String> skillIds) {
-        this.skillIds = skillIds;
-    }
-
-    public boolean isGem() { return gem; }
-
-    public boolean isShouldAdminAchieve() { return shouldAdminAchieve; }
 }
