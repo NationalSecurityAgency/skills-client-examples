@@ -34,7 +34,9 @@ import skills.examples.data.serviceResponseModel.*;
 import skills.examples.utils.RestTemplateFactory;
 import skills.examples.utils.SkillsConfig;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
+import skills.examples.utils.StatefulRestTemplateInterceptor;
+
 import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
@@ -102,21 +104,22 @@ public class InitSkillServiceWithData {
         }
 
         assignCrossProjectDependency(rest, "shows", "MarvelsAgentsofSHIELD", "movies", "TheAvengers");
+        assignDependency(rest, "movies", "TheAvengers", "DespicableMeCollection");
+        assignDependency(rest, "movies", "DespicableMeCollection", "TheTwilightCollection");
         assignSeriesDependencies(rest, "movies", new ArrayList<>(Arrays.asList(
                 "HarryPotterandthePhilosophersStone",
                 "HarryPotterandtheChamberofSecrets",
                 "HarryPotterandthePrisonerofAzkaban",
                 "HarryPotterandtheGobletofFire",
-                "HarryPotterandtheOrderofthePhoenix",
-                "HarryPotterandtheHalfBloodPrince",
-                "HarryPotterandtheDeathlyHallowsPart1",
-                "HarryPotterandtheDeathlyHallowsPart2"))
+                "HarryPotterandtheOrderofthePhoenix"))
         );
         if (skillsConfig.getCreateRootAccount()) {
             addGlobalBadge(rest, serviceUrl, 2);
         }
 
         createQuizzesAndSurveys(rest);
+
+        createAdminGroups(rest);
     }
 
     private void createQuizzesAndSurveys(RestTemplate rest) {
@@ -218,7 +221,14 @@ public class InitSkillServiceWithData {
                 String questionUrl = serviceUrl + "/admin/quiz-definitions/" + quizId + "/create-question";
                 QuizQuestionDefRequest questionDefRequest = new QuizQuestionDefRequest();
                 questionDefRequest.setQuestion(setDescPrefix(q.getQuestion()));
-                questionDefRequest.setQuestionType("SingleChoice");
+                if (q.getQuestionType() != null) {
+                    questionDefRequest.setQuestionType(q.getQuestionType());
+                } else {
+                    questionDefRequest.setQuestionType("SingleChoice");
+                }
+                if (q.getAnswerHint() != null) {
+                    questionDefRequest.setAnswerHint(setDescPrefix(q.getAnswerHint()));
+                }
                 List<QuizAnswerDefRequest> answers = new ArrayList<>();
                 for (Answer a : q.getAnswers()){
                     answers.add(new QuizAnswerDefRequest(setDescPrefix(a.getText()), a.isCorrect()));
@@ -286,21 +296,45 @@ public class InitSkillServiceWithData {
         int index = 0;
         for (QuizQuestionInfoResponse question : quizInfoResponse.getQuestions()) {
             index++;
-            boolean failIfPassNotTrue = index % 2 == 0;
-            if (pass || !failIfPassNotTrue) {
-                List<QuizAnswerOptionsInfoResponse> correctAnswers = question.getAnswers()
-                        .stream().filter(answer -> answer.getIsCorrect()).collect(Collectors.toList());
-                for (QuizAnswerOptionsInfoResponse correctAnswer : correctAnswers) {
-                    post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt/" + quizAttemptStartResult.getId() + "/answers/" + correctAnswer.getId(), new QuizReportAnswerReq());
-                }
+
+            if (question.getQuestionType().equalsIgnoreCase("TextInput")) {
+                String answerText = "-Develop your pieces\n-Control Center\n-Castle";
+                post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt/" + quizAttemptStartResult.getId() + "/answers/" + question.getAnswers().get(0).getId(), new QuizReportAnswerReq(answerText));
             } else {
-                List<QuizAnswerOptionsInfoResponse> wrongAnswers = question.getAnswers()
-                        .stream().filter(answer -> !answer.getIsCorrect()).collect(Collectors.toList());
-                post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt/" + quizAttemptStartResult.getId() + "/answers/" + wrongAnswers.get(0).getId(), new QuizReportAnswerReq());
+                boolean failIfPassNotTrue = index % 2 == 0;
+                if (pass || !failIfPassNotTrue) {
+                    List<QuizAnswerOptionsInfoResponse> correctAnswers = question.getAnswers()
+                            .stream().filter(answer -> answer.getIsCorrect()).collect(Collectors.toList());
+                    for (QuizAnswerOptionsInfoResponse correctAnswer : correctAnswers) {
+                        post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt/" + quizAttemptStartResult.getId() + "/answers/" + correctAnswer.getId(), new QuizReportAnswerReq());
+                    }
+                } else {
+                    List<QuizAnswerOptionsInfoResponse> wrongAnswers = question.getAnswers()
+                            .stream().filter(answer -> !answer.getIsCorrect()).collect(Collectors.toList());
+                    post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt/" + quizAttemptStartResult.getId() + "/answers/" + wrongAnswers.get(0).getId(), new QuizReportAnswerReq());
+                }
             }
         }
 
         post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt/" + quizAttemptStartResult.getId() + "/complete");
+    }
+
+    private void createAdminGroups(RestTemplate adminUserRest) {
+        post(adminUserRest, skillsConfig.getServiceUrl() + "/app/admin-group-definitions/FancyGroup",
+                new AdminGroupRequest("FancyGroup", "Fancy Group"));
+        List<String> groupMembers = skillsConfig.getAdminGroupMembers();
+        for (String userId: groupMembers) {
+            if (!skillsConfig.isPkiMode()) {
+                createUser(skillsConfig.getServiceUrl() + "/createAccount", userId);
+            }
+            post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/users/" + userId + "/roles/ROLE_ADMIN_GROUP_MEMBER");
+        }
+
+        post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/projects/shows");
+        post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/projects/movies");
+        post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/quizzes/ChessInsight");
+        post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/quizzes/TriviaChallenge1");
+        post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/quizzes/TriviaChallenge3");
     }
 
     private <T> T parseStrRes(String res, Class<T> expectedClass) {
@@ -496,15 +530,16 @@ public class InitSkillServiceWithData {
 
     private void assignDependency(RestTemplate rest, String projectId, String fromSkillId, String toSkillId) {
         String serviceUrl = skillsConfig.getServiceUrl();
-        post(rest, serviceUrl + "/admin/projects/" + projectId + "/skills/" + fromSkillId + "/dependency/" + toSkillId);
-        log.info("Assigned project (" + projectId + ") dependency: " + fromSkillId + " -> " + toSkillId);
+        String endpoint = "/admin/projects/" + projectId + "/" + fromSkillId + "/prerequisite/" + projectId + "/" + toSkillId;
+        log.info("Assigning project (" + projectId + ") dependency: " + fromSkillId + " -> " + toSkillId + " (" + endpoint + ")");
+        post(rest, serviceUrl + endpoint);
     }
 
     private void assignCrossProjectDependency(RestTemplate rest, String fromProjId, String fromSkillId, String toProjId, String toSkillId) {
         String serviceUrl = skillsConfig.getServiceUrl();
         // share skill with other project and then assign cross project dependency
         post(rest, serviceUrl + "/admin/projects/" + fromProjId + "/skills/" + fromSkillId + "/shared/projects/" + toProjId);
-        post(rest, serviceUrl + "/admin/projects/" + toProjId + "/skills/" + toSkillId + "/dependency/projects/" + fromProjId + "/skills/" + fromSkillId);
+        post(rest, serviceUrl + "/admin/projects/" + toProjId + "/" + toSkillId + "/prerequisite/" + fromProjId + "/" + fromSkillId);
         log.info("Assigned cross-project dependency: " + fromProjId + ":" + fromSkillId + " -> " + toProjId + ":" + toSkillId);
     }
 
@@ -626,6 +661,8 @@ public class InitSkillServiceWithData {
     private void createUser(String url, String username) {
         if (!doesUserExist(username)) {
             RestTemplate restTemplate = new RestTemplate();
+            restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
+            ResponseEntity<String> userExistsResponse = restTemplate.getForEntity(skillsConfig.getServiceUrl() + "/app/users/validExistingDashboardUserId/{userId}", String.class, skillsConfig.getUsername());
             UserInfoRequest userInfoRequest = new UserInfoRequest("Bill", "Gosling", username, skillsConfig.getPassword());
             HttpEntity request = new HttpEntity<>(userInfoRequest, new HttpHeaders());
             restTemplate.put(url, request);
@@ -638,17 +675,20 @@ public class InitSkillServiceWithData {
     private void createRootAccount() {
         String url = skillsConfig.getServiceUrl();
         RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
+        ResponseEntity<String> userExistsResponse = restTemplate.getForEntity(skillsConfig.getServiceUrl() + "/app/users/validExistingDashboardUserId/{userId}", String.class, skillsConfig.getUsername());
         if (skillsConfig.isPkiMode()) {
             restTemplate.put(url + "/grantFirstRoot", null);
             log.info("\n-----------------\nCreated Root User:\n  DN=[" + getDn() + "]\n----------------");
         } else {
+
 
             // create (optional) additional root users
             for (String additionalUser : skillsConfig.getAdditionalRootUsers()) {
                 createUser(skillsConfig.getServiceUrl() + "/createAccount", additionalUser);
             }
 
-            restTemplate.getForObject(url + "/logout", String.class);
+            restTemplate.postForLocation(url + "/logout", null);
             UserInfoRequest userInfoRequest = new UserInfoRequest("Bill", "Gosling", skillsConfig.getUsername(), skillsConfig.getPassword());
             HttpEntity request = new HttpEntity<>(userInfoRequest, new HttpHeaders());
             restTemplate.put(url + "/createRootAccount", request);

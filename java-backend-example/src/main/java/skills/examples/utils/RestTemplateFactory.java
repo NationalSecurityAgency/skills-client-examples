@@ -15,17 +15,17 @@
  */
 package skills.examples.utils;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.ssl.SSLContexts;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
+import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
+import org.apache.hc.core5.http.config.RegistryBuilder;
+import org.apache.hc.core5.ssl.SSLContexts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -37,6 +37,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import java.util.Collections;
 
 @Component
 public class RestTemplateFactory {
@@ -52,6 +53,7 @@ public class RestTemplateFactory {
     }
     public RestTemplate getTemplateWithAuth(String username) {
         RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
         if (!skillsConfig.getAuthMode().equalsIgnoreCase("pki")) {
             // must configure HttpComponentsClientHttpRequestFactory as SpringTemplate does
             // not by default keeps track of session
@@ -61,6 +63,9 @@ public class RestTemplateFactory {
             MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
             params.add("username", username);
             params.add("password", skillsConfig.getPassword());
+
+            restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
+            restTemplate.getForEntity(skillsConfig.getServiceUrl() + "/", String.class);
 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
             ResponseEntity<String> response = restTemplate.postForEntity(skillsConfig.getServiceUrl() + "/performLogin", request, String.class);
@@ -74,19 +79,22 @@ public class RestTemplateFactory {
             null,
                     allowAllHosts);
 
+
             PoolingHttpClientConnectionManager poolingHttpClientConnectionManager =
                     new PoolingHttpClientConnectionManager(RegistryBuilder.<ConnectionSocketFactory>create()
                             .register("http", PlainConnectionSocketFactory.getSocketFactory())
                             .register("https", sslConnectionSocketFactory).build());
+
             HttpClient httpClient = HttpClients.custom()
-                    .setSSLHostnameVerifier(new NoopHostnameVerifier())
+//                    .setSSLHostnameVerifier(new NoopHostnameVerifier())
                     .useSystemProperties()
-                    .setSSLContext(sslContext)
+//                    .setSSLContext(sslContext)
                     .setConnectionManager(poolingHttpClientConnectionManager)
                     .build();
             HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
             requestFactory.setHttpClient(httpClient);
             restTemplate = new RestTemplate(requestFactory);
+            restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
 
         }
         return restTemplate;
@@ -94,7 +102,7 @@ public class RestTemplateFactory {
 
     private ClientHttpRequestFactory getHttpRequestFactory() {
         HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-        HttpClient httpClient = HttpClientBuilder.create().setSSLHostnameVerifier(new AllowAllHostnameVerifier()).build();
+        HttpClient httpClient = HttpClientBuilder.create().build(); //.setSSLHostnameVerifier(new NoopHostnameVerifier()).build();
         clientHttpRequestFactory.setHttpClient(httpClient);
         return clientHttpRequestFactory;
     }
