@@ -456,15 +456,14 @@ public class InitSkillServiceWithData {
         String name = "Movie and Show Expert";
         String description = "The \"Movies and Shows Expert\" must achieve at least Level " + level + " in both the Movies and Shows projects.";
         String iconClass = "mi mi-live-tv";
-        String badgeUrl = serviceUrl + "/supervisor/badges/" + badgeId;
-        post(rest, badgeUrl, new BadgeRequest(name, setDescPrefix(description), iconClass));
+        post(rest, serviceUrl + "/app/badges/" + badgeId, new BadgeRequest(name, setDescPrefix(description), iconClass));
 
-        post(rest, serviceUrl + "/supervisor/badges/" + badgeId + "/projects/movies/level/" + level);
-        post(rest, serviceUrl + "/supervisor/badges/" + badgeId + "/projects/shows/level/" + level);
+        post(rest, serviceUrl + "/admin/badges/" + badgeId + "/projects/movies/level/" + level);
+        post(rest, serviceUrl + "/admin/badges/" + badgeId + "/projects/shows/level/" + level);
         log.info("\nCreating Global Badge [" + name + "] that requires users to achieve at least level [" + level + "] for both projects");
 
         // enable
-        post(rest, badgeUrl, new BadgeRequest(name, setDescPrefix(description), iconClass, true));
+        post(rest, serviceUrl + "/admin/badges/" + badgeId, new BadgeRequest(name, setDescPrefix(description), iconClass, true));
     }
 
     private void addBadges(Project project, RestTemplate rest, String projectUrl) {
