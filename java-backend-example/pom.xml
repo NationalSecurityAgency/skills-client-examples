@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.4</version>
+        <version>3.5.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>skill-tree</groupId>
@@ -15,8 +15,6 @@
     <description>SkillTree Backend example using Spring Boot</description>
 
     <properties>
-        <!-- TODO: remove after spring boot upgrades to at least these versions -->
-        <tomcat.version>10.1.44</tomcat.version>
     </properties>
 
     <dependencies>
