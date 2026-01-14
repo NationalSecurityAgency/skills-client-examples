@@ -555,7 +555,8 @@ public class InitSkillServiceWithData {
         }
         List<String> userIds = new ArrayList<>();
         for (int i = 0; i < numUsers; i++) {
-            userIds.add("uid" + i);
+            String userId = "uid" + i;
+            userIds.add(skillsConfig.isPkiMode() ? "CN=First Middle Last " + userId + ", OU=SkillTree, O=US" : userId);
         }
         userIds.add(getCurrentUserId());
         userIds.addAll(skillsConfig.getAdditionalRootUsers());
