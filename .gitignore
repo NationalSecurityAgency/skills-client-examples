@@ -1,4 +1,5 @@
-.idea
-target
-*.iml
-e2e-tests/node_modules
+<<<<<<< HEAD
+master
+=======
+major
+>>>>>>> master
