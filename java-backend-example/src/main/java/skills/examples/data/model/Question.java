@@ -24,6 +24,7 @@ public class Question {
     private String question;
     private String questionType;
     private List<Answer> answers;
+    private String answerHint;
 
     public String getQuestion() {
         return question;
@@ -49,11 +50,20 @@ public class Question {
         this.questionType = questionType;
     }
 
+    public String getAnswerHint() {
+        return answerHint;
+    }
+
+    public void setAnswerHint(String answerHint) {
+        this.answerHint = answerHint;
+    }
+
     @Override
     public String toString() {
         return "Question{" +
                 "question='" + question + '\'' +
                 ", questionType='" + questionType + '\'' +
+                ", answerHint='" + answerHint + '\'' +
                 ", answers=" + answers +
                 '}';
     }

@@ -15,6 +15,7 @@
  */
 package skills.examples.utils;
 
+import ch.qos.logback.core.util.StringUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.style.ToStringCreator;
@@ -38,7 +39,8 @@ public class SkillsConfig {
     Integer numEvents = 2500;
     Integer numUsers = 34;
     Integer numDays = 365;
-    List<String> additionalRootUsers = new ArrayList<>();  // optional, only applies to non-PKI authMode
+    List<String> additionalRootUsers = new ArrayList<>();  // optional, only applies to non-PKI authMode}
+    String adminGroupMembers = "";  // optional semi-colon separated list of userId's/DN's
 
     String descPrefix = "";
 
@@ -66,6 +68,15 @@ public class SkillsConfig {
     public void setNumDays(Integer numDays) { this.numDays = numDays; }
     public List<String> getAdditionalRootUsers() { return additionalRootUsers; }
     public void setAdditionalRootUsers(List<String> additionalRootUsers) { this.additionalRootUsers = additionalRootUsers; }
+    public List<String> getAdminGroupMembers() {
+        List<String> adminGroupMemeberList = new ArrayList<>();
+        if (StringUtil.notNullNorEmpty(adminGroupMembers)) {
+            adminGroupMemeberList = List.of(adminGroupMembers.split("[;]"));
+        }
+        return adminGroupMemeberList;
+    }
+    public void setAdminGroupMembers(String adminGroupMembers) { this.adminGroupMembers = adminGroupMembers;  }
+
 
     public String getDescPrefix() { return descPrefix; }
     public void setDescPrefix(String descPrefix) { this.descPrefix = descPrefix; }

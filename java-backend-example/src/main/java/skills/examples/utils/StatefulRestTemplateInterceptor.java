@@ -24,36 +24,41 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class StatefulRestTemplateInterceptor implements ClientHttpRequestInterceptor {
 
     private static final Logger log = LoggerFactory.getLogger(StatefulRestTemplateInterceptor.class);
-    private List<String> cookies;
+    private final List<String> cookies = new ArrayList<>();
     private String xsrfToken;
     private String xsrfCookie;
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
 
-        HttpHeaders requstHeaders = request.getHeaders();
-        if (cookies != null) {
-            requstHeaders.addAll(HttpHeaders.COOKIE, cookies);
+        // add cookies and XSRF token headers if present
+        HttpHeaders requestHeaders = request.getHeaders();
+        if (!cookies.isEmpty()) {
+            requestHeaders.addAll(HttpHeaders.COOKIE, cookies);
         }
         if (xsrfToken != null) {
-            requstHeaders.add("X-XSRF-TOKEN" , xsrfToken);
+            requestHeaders.add("X-XSRF-TOKEN" , xsrfToken);
         }
         log.debug("REQUEST: [{}], headers [{}]", request.getURI(), request.getHeaders());
         ClientHttpResponse response = execution.execute(request, body);
 
+        // update cookies and XSRF token for future requests
         HttpHeaders headers = response.getHeaders();
-
         List<String> returnedCookies = headers.getOrEmpty(HttpHeaders.SET_COOKIE);
-        if (!returnedCookies.isEmpty() && cookies == null) {
-            cookies = returnedCookies;
-            log.info("Setting cookies to {}", returnedCookies);
-        }
-        if (!returnedCookies.isEmpty() && xsrfToken == null) {
+        if (!returnedCookies.isEmpty()) {
+            for (String cookie : returnedCookies) {
+                String cookieName = getCookieName(cookie);
+                cookies.removeIf(str -> str.startsWith(cookieName));
+            }
+            cookies.addAll(returnedCookies);
+            log.debug("Received new cookies {}, updated/merged cookies {}", returnedCookies, cookies);
+
             response.getHeaders().get(HttpHeaders.SET_COOKIE).stream().filter(cookie -> cookie.startsWith("XSRF-TOKEN")).findAny().ifPresent(cookie -> xsrfCookie = cookie);
             if (xsrfCookie != null) {
                 xsrfToken = xsrfCookie.substring(xsrfCookie.indexOf('=') + 1, xsrfCookie.indexOf(';'));
@@ -61,5 +66,14 @@ public class StatefulRestTemplateInterceptor implements ClientHttpRequestInterce
             }
         }
         return response;
+    }
+
+    public static String getCookieName(String str) {
+        int equalsIndex = str.indexOf('=');
+        if (equalsIndex != -1) {
+            return str.substring(0, equalsIndex);
+        } else {
+            return str;
+        }
     }
 }

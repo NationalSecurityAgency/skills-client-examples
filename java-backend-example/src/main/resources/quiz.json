@@ -571,11 +571,13 @@
     "questions": [
       {
         "question": "Please describe 3 basic goals during the chess opening?",
+        "answerHint": "Consider the first 10 moves, what are you trying to achieve?",
         "questionType": "TextInput",
         "answers": []
       },
       {
         "question": "What is the overall goal of a chess game?",
+        "answerHint": "Think about the king's safety",
         "answers": [
           {
             "text": "Stalemate",
