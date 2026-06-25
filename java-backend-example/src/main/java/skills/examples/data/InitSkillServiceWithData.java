@@ -18,12 +18,12 @@ package skills.examples.data;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -39,8 +39,6 @@ import skills.examples.data.serviceRequestModel.*;
 import skills.examples.data.serviceResponseModel.*;
 import skills.examples.utils.RestTemplateFactory;
 import skills.examples.utils.SkillsConfig;
-
-import jakarta.annotation.PostConstruct;
 import skills.examples.utils.StatefulRestTemplateInterceptor;
 
 import java.io.FileInputStream;
@@ -465,12 +463,17 @@ public class InitSkillServiceWithData {
     }
 
     private void saveSlideSkills (RestTemplate rest, String projectUrl, String skillId, String slideName) {
-        Resource pdfSlides = new ClassPathResource("/slides/" + slideName);
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         try {
-            body.add("file", new FileSystemResource(pdfSlides.getFile()));
+            Resource[] pdfSlides = resolver.getResources("classpath*:slides/*.pdf");
+            for (Resource slide : pdfSlides) {
+                if (slide.isReadable()) {
+                    body.add("file", slide);
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload slides", e);
         }
