@@ -21,10 +21,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -38,6 +44,7 @@ import jakarta.annotation.PostConstruct;
 import skills.examples.utils.StatefulRestTemplateInterceptor;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.*;
@@ -436,6 +443,12 @@ public class InitSkillServiceWithData {
                     skillRequest.setNumPerformToCompletion(2);
                 }
                 post(rest, skillUrl, skillRequest);
+
+                if (skillName.equalsIgnoreCase("Avatar")) {
+                    saveSlideSkills(rest, projectUrl, skillName, "test-slides-1.pdf");
+                } else if (skillName.equalsIgnoreCase("Deadpool")) {
+                    saveSlideSkills(rest, projectUrl, skillName, "test-slides-2.pdf");
+                }
             }
 
             for (GroupRequest gR : groupRequestMap.values()) {
@@ -448,6 +461,25 @@ public class InitSkillServiceWithData {
             }
 
             log.info("\nCompleted [" + subject.getName() + "] subject");
+        }
+    }
+
+    private void saveSlideSkills (RestTemplate rest, String projectUrl, String skillId, String slideName) {
+        Resource pdfSlides = new ClassPathResource("/slides/" + slideName);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        try {
+            body.add("file", new FileSystemResource(pdfSlides.getFile()));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to upload slides", e);
+        }
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        String endpoint = projectUrl + "/skills/" + skillId + "/slides";
+        ResponseEntity<String> responseEntity = rest.postForEntity(endpoint, requestEntity, String.class);
+        if (responseEntity.getBody() != null) {
+            String retValue = responseEntity.getBody();
         }
     }
 
