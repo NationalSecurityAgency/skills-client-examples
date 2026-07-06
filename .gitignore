@@ -2,3 +2,5 @@
 target
 *.iml
 e2e-tests/node_modules
+.run
+package-lock.json
