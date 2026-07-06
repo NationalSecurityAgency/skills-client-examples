@@ -17,7 +17,7 @@
 context('Examples Tests', () => {
 
   beforeEach(() => {
-    cy.server().route('/api/users/user4@email.com/token').as('getToken')
+    cy.intercept('/api/users/user4@email.com/token').as('getToken')
   })
 
   it('test pure js example', () => {
