@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2026 SkillTree
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,30 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package skills.examples.data.serviceRequestModel;
 
-public class ProjRequest {
-    String name;
+context('Examples Tests', () => {
 
-    public ProjRequest() {
-    }
+  beforeEach(() => {
+    cy.server().route('/api/users/user4@email.com/token').as('getToken')
+  })
 
-    public ProjRequest(String name) {
-        this.name = name;
-    }
+  it('test pure js example', () => {
+    cy.visit('http://localhost:8092/')
+    cy.wait('@getToken')
+    cy.wrapIframe().contains('Overall Points');
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return "ProjRequest{" +
-                "name='" + name + '\'' +
-                '}';
-    }
-}
+    cy.get('button').contains('Report Skill').click()
+    cy.contains('"skillId": "IronMan"')
+  })
+})

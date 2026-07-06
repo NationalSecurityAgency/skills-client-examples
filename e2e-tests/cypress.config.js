@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 SkillTree
+ * Copyright 2026 SkillTree
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+const { defineConfig } = require("cypress");
 
-context('Examples Tests', () => {
+module.exports = defineConfig({
+  allowCypressEnv: false,
 
-  beforeEach(() => {
-    cy.server().route('/api/users/user4@email.com/token').as('getToken')
-  })
-
-  it('test pure js example', () => {
-    cy.visit('http://localhost:8092/')
-    cy.wait('@getToken')
-    cy.wrapIframe().contains('Overall Points');
-
-    cy.get('button').contains('Report Skill').click()
-    cy.contains('"skillId": "IronMan"')
-  })
-})
+  e2e: {
+    setupNodeEvents(on, config) {
+      // implement node event listeners here
+    },
+  },
+});
