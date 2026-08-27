@@ -15,8 +15,8 @@
  */
 package skills.examples.data;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -25,6 +25,7 @@ import skills.examples.data.model.Quiz;
 import skills.examples.data.model.Survey;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @Component
@@ -41,8 +42,8 @@ public class SampleDatasetLoader {
 
     public List<Project> getProjects() {
         ObjectMapper jsonMapper = new ObjectMapper();
-        try {
-            List<Project> projects = jsonMapper.readValue(projectsResourceFile.getURL(), new TypeReference<List<Project>>() {});
+        try (InputStream is = projectsResourceFile.getInputStream()) {
+            List<Project> projects = jsonMapper.readValue(is, new TypeReference<List<Project>>() {});
             return projects;
         } catch (IOException e) {
             throw new RuntimeException("Failed to load sample project data", e);
@@ -51,8 +52,8 @@ public class SampleDatasetLoader {
 
     public List<Quiz> getQuizzes() {
         ObjectMapper jsonMapper = new ObjectMapper();
-        try {
-            List<Quiz> quizzes = jsonMapper.readValue(quizResourceFile.getURL(), new TypeReference<List<Quiz>>() {});
+        try (InputStream is = quizResourceFile.getInputStream()) {
+            List<Quiz> quizzes = jsonMapper.readValue(is, new TypeReference<List<Quiz>>() {});
             return quizzes;
         } catch (IOException e) {
             throw new RuntimeException("Failed to load quiz data", e);
@@ -61,8 +62,8 @@ public class SampleDatasetLoader {
 
     public List<Survey> getSurveys() {
         ObjectMapper jsonMapper = new ObjectMapper();
-        try {
-            List<Survey> surveys = jsonMapper.readValue(surveyResourceFile.getURL(), new TypeReference<List<Survey>>() {});
+        try (InputStream is = surveyResourceFile.getInputStream()) {
+            List<Survey> surveys = jsonMapper.readValue(is, new TypeReference<List<Survey>>() {});
             return surveys;
         } catch (IOException e) {
             throw new RuntimeException("Failed to load survey data", e);

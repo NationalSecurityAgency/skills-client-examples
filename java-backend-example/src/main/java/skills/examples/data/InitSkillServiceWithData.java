@@ -16,8 +16,8 @@
 package skills.examples.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,6 +94,7 @@ public class InitSkillServiceWithData {
             String projectUrl = serviceUrl + "/admin/projects/" + projectId;
             addSubjects(project, rest, projectUrl);
             addBadges(project, rest, projectUrl);
+            addSkillTags(project, rest, projectUrl);
 
             // pin the project on the root user's admin view and enable production mode
             if (skillsConfig.getCreateRootAccount()) {
@@ -345,7 +346,7 @@ public class InitSkillServiceWithData {
     private <T> T parseStrRes(String res, Class<T> expectedClass) {
         try {
             return jsonMapper.readValue(res, expectedClass);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new RuntimeException(e);
         }
     }
@@ -520,6 +521,17 @@ public class InitSkillServiceWithData {
             // enable badge
             badgeRequest.setEnabled(true);
             post(rest, badgeUrl, badgeRequest);
+        }
+    }
+
+    private void addSkillTags(Project project, RestTemplate rest, String projectUrl) {
+        for (Badge badge : project.getBadges()) {
+            log.info("\nCreating skill tag [" + badge.getName() + "] with [" + badge.getSkillIds().size() + "] skills");
+            String tagId = badge.getName().replaceAll("\\s+", "").toLowerCase();
+            String tagUrl = projectUrl + "/skills/tag";
+            SkillTagRequest tagRequest = new SkillTagRequest(tagId, badge.getName());
+            tagRequest.setSkillIds(badge.getSkillIds());
+            post(rest, tagUrl, tagRequest);
         }
     }
 
