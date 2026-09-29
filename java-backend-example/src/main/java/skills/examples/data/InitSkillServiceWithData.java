@@ -706,7 +706,7 @@ public class InitSkillServiceWithData {
     }
 
     private void createUser(String url, String username) {
-        if (!doesUserExist(username)) {
+        try {
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
             ResponseEntity<String> userExistsResponse = restTemplate.getForEntity(skillsConfig.getServiceUrl() + "/app/users/validExistingDashboardUserId/{userId}", String.class, skillsConfig.getUsername());
@@ -714,8 +714,8 @@ public class InitSkillServiceWithData {
             HttpEntity request = new HttpEntity<>(userInfoRequest, new HttpHeaders());
             restTemplate.put(url, request);
             log.info("Created User: email=[{}], password=[{}]", username, userInfoRequest.getPassword());
-        } else {
-            log.debug("User [{}] already exists", username);
+        } catch (Exception e) {
+            log.error("Could not create user", e);
         }
     }
 
