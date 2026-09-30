@@ -39,7 +39,6 @@ import skills.examples.data.serviceRequestModel.*;
 import skills.examples.data.serviceResponseModel.*;
 import skills.examples.utils.RestTemplateFactory;
 import skills.examples.utils.SkillsConfig;
-import skills.examples.utils.StatefulRestTemplateInterceptor;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -707,8 +706,7 @@ public class InitSkillServiceWithData {
 
     private void createUser(String url, String username) {
         try {
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
+            RestTemplate restTemplate = restTemplateFactory.getTemplateWithCsrf();
             ResponseEntity<String> userExistsResponse = restTemplate.getForEntity(skillsConfig.getServiceUrl() + "/app/users/validExistingDashboardUserId/{userId}", String.class, skillsConfig.getUsername());
             UserInfoRequest userInfoRequest = new UserInfoRequest("Bill", "Gosling", username, skillsConfig.getPassword());
             HttpEntity request = new HttpEntity<>(userInfoRequest, new HttpHeaders());
@@ -721,8 +719,7 @@ public class InitSkillServiceWithData {
 
     private void createRootAccount() {
         String url = skillsConfig.getServiceUrl();
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
+        RestTemplate restTemplate = restTemplateFactory.getTemplateWithCsrf();
         ResponseEntity<String> userExistsResponse = restTemplate.getForEntity(skillsConfig.getServiceUrl() + "/app/users/validExistingDashboardUserId/{userId}", String.class, skillsConfig.getUsername());
         if (skillsConfig.isPkiMode()) {
             restTemplate.put(url + "/grantFirstRoot", null);
@@ -736,6 +733,8 @@ public class InitSkillServiceWithData {
             }
 
             restTemplate.postForLocation(url + "/logout", null);
+            // Logout invalidates the session that supplied the original CSRF token.
+            restTemplateFactory.refreshCsrfToken(restTemplate);
             UserInfoRequest userInfoRequest = new UserInfoRequest("Bill", "Gosling", skillsConfig.getUsername(), skillsConfig.getPassword());
             HttpEntity request = new HttpEntity<>(userInfoRequest, new HttpHeaders());
             restTemplate.put(url + "/createRootAccount", request);

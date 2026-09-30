@@ -51,25 +51,35 @@ public class RestTemplateFactory {
     public RestTemplate getTemplateWithAuth() {
         return this.getTemplateWithAuth(skillsConfig.getUsername());
     }
-    public RestTemplate getTemplateWithAuth(String username) {
+
+    public RestTemplate getTemplateWithCsrf() {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
-        if (!skillsConfig.getAuthMode().equalsIgnoreCase("pki")) {
+        refreshCsrfToken(restTemplate);
+        return restTemplate;
+    }
+
+    public void refreshCsrfToken(RestTemplate restTemplate) {
+        StatefulRestTemplateInterceptor interceptor = restTemplate.getInterceptors().stream()
+                .filter(StatefulRestTemplateInterceptor.class::isInstance)
+                .map(StatefulRestTemplateInterceptor.class::cast)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("RestTemplate must have a StatefulRestTemplateInterceptor"));
+        interceptor.clearXsrfToken();
+        restTemplate.getForEntity(skillsConfig.getServiceUrl() + "/public/status", String.class);
+        if (!interceptor.hasXsrfToken()) {
+            throw new IllegalStateException("No XSRF-TOKEN cookie received from /public/status");
+        }
+    }
+
+    public RestTemplate getTemplateWithAuth(String username) {
+        RestTemplate restTemplate = new RestTemplate();
+        StatefulRestTemplateInterceptor interceptor = new StatefulRestTemplateInterceptor();
+        restTemplate.setInterceptors(Collections.singletonList(interceptor));
+        if (!skillsConfig.isPkiMode()) {
             // must configure HttpComponentsClientHttpRequestFactory as SpringTemplate does
             // not by default keeps track of session
             restTemplate.setRequestFactory(getHttpRequestFactory());
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            params.add("username", username);
-            params.add("password", skillsConfig.getPassword());
-
-            restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
-            restTemplate.getForEntity(skillsConfig.getServiceUrl() + "/", String.class);
-
-            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-            ResponseEntity<String> response = restTemplate.postForEntity(skillsConfig.getServiceUrl() + "/performLogin", request, String.class);
-            assert response.getStatusCode() == HttpStatus.OK;
         } else {
             SSLContext sslContext = SSLContexts.createSystemDefault();
             HostnameVerifier allowAllHosts = new NoopHostnameVerifier();
@@ -93,9 +103,20 @@ public class RestTemplateFactory {
                     .build();
             HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
             requestFactory.setHttpClient(httpClient);
-            restTemplate = new RestTemplate(requestFactory);
-            restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
+            restTemplate.setRequestFactory(requestFactory);
 
+        }
+        refreshCsrfToken(restTemplate);
+        if (!skillsConfig.isPkiMode()) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("username", username);
+            params.add("password", skillsConfig.getPassword());
+
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(skillsConfig.getServiceUrl() + "/performLogin", request, String.class);
+            assert response.getStatusCode() == HttpStatus.OK;
         }
         return restTemplate;
     }
