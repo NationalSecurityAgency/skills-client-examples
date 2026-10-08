@@ -106,6 +106,7 @@ public class RestTemplateFactory {
             restTemplate.setRequestFactory(requestFactory);
 
         }
+        restTemplate.setInterceptors(Collections.singletonList(interceptor));
         refreshCsrfToken(restTemplate);
         if (!skillsConfig.isPkiMode()) {
             HttpHeaders headers = new HttpHeaders();

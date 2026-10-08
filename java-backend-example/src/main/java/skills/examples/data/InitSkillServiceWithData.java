@@ -278,6 +278,7 @@ public class InitSkillServiceWithData {
         QuizInfoResponse quizInfoResponse = get(adminUserRest,
                 skillsConfig.getServiceUrl() + "/admin/quiz-definitions/" + surveyId + "/questions", QuizInfoResponse.class);
 
+        restTemplateFactory.refreshCsrfToken(thisUserRest);
         String res = post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + surveyId + "/attempt");
         QuizAttemptStartResult quizAttemptStartResult = parseStrRes(res, QuizAttemptStartResult.class);
         int index = 0;
@@ -296,6 +297,7 @@ public class InitSkillServiceWithData {
         QuizInfoResponse quizInfoResponse = get(adminUserRest,
                 skillsConfig.getServiceUrl() + "/admin/quiz-definitions/" + quizId + "/questions", QuizInfoResponse.class);
 
+        restTemplateFactory.refreshCsrfToken(thisUserRest);
         String res = post(thisUserRest, skillsConfig.getServiceUrl() + "/api/quizzes/" + quizId + "/attempt");
         QuizAttemptStartResult quizAttemptStartResult = parseStrRes(res, QuizAttemptStartResult.class);
         int index = 0;
@@ -340,6 +342,7 @@ public class InitSkillServiceWithData {
         post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/quizzes/ChessInsight");
         post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/quizzes/TriviaChallenge1");
         post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/quizzes/TriviaChallenge3");
+        post(adminUserRest, skillsConfig.getServiceUrl() + "/admin/admin-group-definitions/FancyGroup/badges/MoviesandShowsExpertBadge");
     }
 
     private <T> T parseStrRes(String res, Class<T> expectedClass) {
